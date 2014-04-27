@@ -1,0 +1,45 @@
+#!/usr/bin/env perl6
+
+use v6;
+use JSON::Tiny;
+constant start    = now;
+constant decks    = from-json(slurp 'decks.json');
+constant template = slurp 'templates/deck.html';
+constant index    = slurp 'templates/index.html';
+
+
+#= Merge template with Markdown slide files to create presentations
+multi MAIN () {
+    gen-presentation($_) for decks.list;
+    gen-index(decks);
+
+    say "Completed {+decks} presentation{decks == 1 ?? '' !! 's'} in {(now - start).Num.fmt('%.2f')} seconds.";
+}
+
+
+sub gen-presentation($pres) {
+    my $divider      = /\n+ '----' \n+/;
+    $pres<body>      = slurp($pres<file>).split($divider).map(&put-in-section).join;
+    $pres<html-file> = $pres<file> ~ '.html';
+
+    spurt $pres<html-file>, template.subst(/'%' (@($pres.keys)) '%'/, -> $/ { $pres{~$0} }, :g);
+}
+
+
+sub put-in-section($TEXT) {
+    return qq[
+    <section data-markdown>
+        <script type="text/template">
+$TEXT
+        </script>
+    </section>
+];
+}
+
+
+sub gen-index($decks) {
+    my $dir   = cwd.path.basename;
+    my @items = $decks.list.map: {"    <li><a href=\"{$_<html-file>}\">{$_<title>}</a></li>\n"};
+
+    spurt 'index.html', index.subst('%dir%', $dir).subst('%items%', @items.join);
+}

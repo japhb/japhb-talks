@@ -1,0 +1,391 @@
+# The Need for Speed
+
+### Benchmarking Perl 6
+
+<small>Geoffrey Broadwell (japhb)</small>
+
+----
+
+# The Need for Speed
+
+### Benchmarking the Perl Family
+
+<small>Geoffrey Broadwell (japhb)</small>
+
+----
+
+I <span style="font-size: larger; color: red">♥</span> Perl 6.
+
+I *really* want to use it at my `$day-job`.
+
+----
+
+(and not just in secret)
+
+----
+
+To do this, I need Perl 6 to be "production ready".
+
+----
+
+But what does this *mean*?
+
+----
+
+Sayeth masak:
+
+  * Features
+  * Documentation
+  * Concurrency
+  * CPAN
+  * Speed
+
+----
+
+My take:
+
+  * Features -- we has them
+  * Documentation -- have some, need more
+  * Concurrency -- sockets for now
+  * CPAN -- working on that ...
+  * Speed -- **OMG SLOW**
+
+----
+
+# SPEED
+
+----
+
+To be sure, there have been some *big* wins already  
+<small>(pmichaud++, jnthn++, ... heck ... #perl6++ for that)</small>  
+but there's clearly a long ways to go.
+
+----
+
+So how fast is "fast enough"?
+
+And how do we find the worst bottlenecks first?
+
+----
+
+My approach:
+
+  * Pick perl5 as the gold standard.
+  * Pick thresholds to beat:
+      - <  2x slower "good"
+      - < 10x slower "OK"
+      - otherwise **"BAD"**
+  * Benchmark!
+
+----
+
+BUT:  
+There are several Perl 6 compilers  
+... some of which have multiple back ends
+
+----
+
+Want to compare across:
+
+  * languages
+  * compilers
+  * releases
+  * back ends
+
+----
+
+Cloning separate copies for all combinations would take a lot of bandwidth
+and time, let alone duplicated effort to keep all the clones up to date. ☹
+
+----
+
+One clone for each compiler means you can't do cross-version or cross-backend
+comparisons all at once -- between each benchmark run you have to clean up,
+check out a new version, and build it from scratch again. ☹
+
+----
+
+# perl6-bench
+
+----
+
+Plumbing (`timeall`, `analyze`) written in Perl 5 for speed;  
+porcelain (`bench`) written in Perl 6 for -Ofun.
+
+----
+
+Clones *one* mirror of each component across network:
+
+```markdown
+./bench setup
+./bench list-components
+
+COMPONENT    STATUS
+---------    ------
+moarvm       cloned
+niecza       cloned
+nqp          cloned
+nqp-js       cloned
+nqp-jvm      cloned
+parrot       cloned
+perl5        cloned
+perlito      cloned
+rakudo       cloned
+```
+
+----
+
+Quick digression: what's what
+
+```markdown
+# Rakudo stack
+rakudo       Perl 6 on NQP
+nqp          Not Quite Perl on Parrot
+nqp-js       Not Quite Perl on JavaScript
+nqp-jvm      Not Quite Perl on JVM
+parrot       Parrot VM
+moarvm       Moar VM
+
+# Other compilers
+niecza       Perl  6  on Mono/.NET
+perlito      Perl 5/6 on perl5/JavaScript
+perl5        Standard Perl 5
+```
+
+(Note the bit about Rakudo being built on NQP;  
+we'll get back to that in a bit.)
+
+----
+
+Makes local clones as needed:
+
+```markdown
+./bench extract perl5/v5.18.0 nqp/2013.05 rakudo/nom
+./bench list-checkouts
+
+CHECKOUT            REVISION
+--------            --------
+moarvm/moarvm       bc92df7
+niecza/niecza       v24-66-gaee6525
+nqp/2013.05         2013.05
+nqp/nqp             2013.05-151-gb0d3b9c
+nqp-js/nqp-js       fa579be
+nqp-jvm/nqp-jvm     2013.05-151-gb0d3b9c
+parrot/parrot       1b6fc75
+perl5/perl5         v5.19.0-397-g5840701
+perl5/v5.18.0       v5.18.0
+perlito/perlito     v9.0-383-g4f7a85e
+rakudo/nom          2013.05-209-g2975f0b
+rakudo/rakudo       2013.05-209-g2975f0b
+```
+
+----
+
+Knows how to keep them up to date by updating  
+the mirror first, then the *non-tag* checkouts:
+
+```markdown
+./bench fetch
+
+==> niecza
+~~~> FETCHING
+----> niecza.git
+----> niecza
+----> v24
+~~~> PULLING
+----> niecza
+Already up-to-date.
+==> nqp
+~~~> FETCHING
+----> nqp.git
+...
+```
+
+----
+
+Builds multiple checkouts in sequence:
+
+```bash
+./bench build nqp nqp-jvm perl5/v5.18.0 rakudo/2013.04,2013.05,nom
+# Go enjoy a fine meal ....
+```
+
+----
+
+And yes, prevents Rakudo, NQP, and nqp-cc from cloning their own dependencies:
+
+```js
+{
+    "rakudo": {
+        "name":         "rakudo",
+        "repo_url":     "git://github.com/rakudo/rakudo.git",
+        "release_tags": "^ 20\\d\\d \\D \\d\\d [\\.\\d+]? $",
+        "build_steps":  [
+            [ "make", "realclean" ],
+            [ "git", "clean", "-dxf" ],
+            [ "rm", "-rf", "install", "nqp", "parrot" ],
+            [ "git", "clone", "-l", "../../parrot/parrot.git" ],
+            [ "git", "clone", "-l", "../../nqp/nqp.git" ],
+            [ "perl", "Configure.pl", "--gen-parrot" ],
+            [ "make" ],
+            [ "make", "install" ]
+        ]
+    }
+}
+```
+
+----
+
+# Benchmarking
+
+----
+
+Gathering timings:
+
+```bash
+# Time every compiler build against every test
+./bench time
+
+# Time only these compiler builds
+./bench time nqp/2013.05 nqp-jvm/2013.05 rakudo/2013.05
+
+# Only run certain tests
+./bench --tests=while_concat,rc-forest-fire time nqp/master rakudo/nom
+```
+
+----
+
+Analyzing results:
+
+```bash
+# Compare all timings, ignore startup/compile time, output to screen
+./bench compare
+
+# Compare timings from just this compiler
+./bench compare rakudo
+
+# Ack, turn off the colors!
+./bench --style=0 compare
+
+# Merge timing and comparison data into one JSON file
+./bench --outfile=merged.json compare
+
+# Output to HTML as table
+./bench --outfile=2013-05.html compare \
+        perl5/v5.18.0 nqp/2013.05 nqp-jvm/2013.05 rakudo/2013.05
+```
+
+----
+
+*Plotting* results:
+
+```bash
+# Output to HTML as plots
+./bench --format=html_plot --outfile=plots.html compare
+```
+
+----
+
+Here's a sample:
+
+![while_array_set](while_array_set.png)
+
+----
+
+What does the plot tell us?
+
+  * Log/log plot of throughput versus *scale* (work per run).
+  * Ascending portion: *overhead/warmup dominating*.
+  * Horizontal portion: *as fast as it's going to get*.
+  * Descending portion: *problems scaling up*.
+  * Rightmost point: *ran over time limit*.
+
+----
+
+A nearly ideal plot:
+
+![while_empty](while_empty.png)
+
+----
+
+Same test with native types:
+
+![while_empty_native](while_empty_native.png)
+
+----
+
+A mild weakness in `perl5`:
+
+![while_hash_set](while_hash_set.png)
+
+----
+
+Non-linear test scaling:
+
+![visit_2d_indices_while](visit_2d_indices_while.png)
+
+----
+
+So far these have all been microbenchmarks, with code kept as
+close as possible to exact translations between languages.
+
+But what about longer, more idiomatic code?
+
+----
+
+`rc-forest-fire` is a simple 2D cellular automaton that simulates
+a growing forest with occasional fires.
+
+![rc-forest-fire-frame](rc-forest-fire-frame.png)
+
+----
+
+The differences are telling:
+
+![rc-forest-fire](rc-forest-fire.png)
+
+----
+
+* `perl5` is the fastest
+* `nqp-jvm` about 2.5x slower at best
+* `nqp` about 8x slower at best
+* `niecza` about 45x slower at best
+* `rakudo` about 415x slower at best
+
+----
+
+If Rakudo is so slow, why am I so happy?
+
+&nbsp;
+
+Because `nqp-jvm` is already considerably faster than  
+`nqp-parrot`, in some cases as fast as `perl5`.  
+*And it hasn't even reached the "make it fast" stage.*
+
+&nbsp;
+
+That bodes very well indeed for Rakudo's performance  
+in the coming months.
+
+----
+
+Clearly there's a long way to go.
+
+But now we know *where* to go, and we can measure our progress.
+
+----
+
+## Pull requests Welcome!
+
+[github.com/japhb/perl6-bench](https://github.com/japhb/perl6-bench "perl6-bench")
+
+`japhb` on  
+`irc.freenode.net #perl6`
+
+----
+
+# Questions?
+
+----
+
+# Thank you!
