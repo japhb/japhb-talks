@@ -1,11 +1,13 @@
 #!/usr/bin/env perl6
 
+# NOTE: Run from within a presentations folder, paths are hardcoded!
+
 use v6;
 use JSON::Tiny;
 constant start    = now;
 constant decks    = from-json(slurp 'decks.json');
-constant template = slurp 'templates/deck.html';
-constant index    = slurp 'templates/index.html';
+constant template = slurp '../templates/deck.html';
+constant index    = slurp '../templates/index.html';
 
 
 #= Merge template with Markdown slide files to create presentations
