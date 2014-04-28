@@ -1,0 +1,2 @@
+sub double(Numeric $val) { $val * 2 }
+say double('bar');

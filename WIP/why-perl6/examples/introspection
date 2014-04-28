@@ -1,0 +1,6 @@
+my $half = 1/2;
+say $half.WHAT;
+say $half.HOW;
+say $half.^mro;
+say $half.^attributes;
+say $half.^methods.sort;

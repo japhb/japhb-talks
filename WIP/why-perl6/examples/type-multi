@@ -1,0 +1,3 @@
+multi double(Numeric $val) { $val * 2 }
+multi double(Stringy $val) { $val x 2 }
+say double('bar');
