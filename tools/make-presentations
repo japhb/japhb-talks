@@ -4,7 +4,6 @@
 
 use v6;
 use JSON::Tiny;
-constant start    = now;
 constant decks    = from-json(slurp 'decks.json');
 constant template = slurp '../templates/deck.html';
 constant index    = slurp '../templates/index.html';
@@ -15,7 +14,7 @@ multi MAIN () {
     gen-presentation($_) for decks.list;
     gen-index(decks);
 
-    say "Completed {+decks} presentation{decks == 1 ?? '' !! 's'} in {(now - start).Num.fmt('%.2f')} seconds.";
+    say "Completed {+decks} presentation{decks == 1 ?? '' !! 's'} in {(now - $*INITTIME).fmt('%.2f')} seconds.";
 }
 
 
