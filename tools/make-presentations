@@ -6,21 +6,24 @@ use JSON::Tiny;
 #= Merge template with Markdown slide files to create presentations
 multi MAIN ($decks-json-path = 'decks.json') {
     my $decks    := from-json(slurp $decks-json-path);
-    my $tmpl_dir := script-dir().parent.child('templates');
-    my $template := slurp "$tmpl_dir/deck.html";
-    my $index    := slurp "$tmpl_dir/index.html";
+    my $root-dir := script-dir().parent;
+    my $tmpl-dir := $root-dir.child('templates');
+    my $reveal   := reveal-path($root-dir);
+    my $template := slurp "$tmpl-dir/deck.html";
+    my $index    := slurp "$tmpl-dir/index.html";
 
-    gen-presentation($_, $template) for $decks.list;
+    gen-presentation($_, $template, $reveal) for $decks.list;
     gen-index($decks, $index);
 
     say "Completed {+$decks} presentation{$decks == 1 ?? '' !! 's'} in {(now - $*INITTIME).fmt('%.2f')} seconds.";
 }
 
 
-sub gen-presentation($pres, $template) {
+sub gen-presentation($pres, $template, $reveal) {
     my $divider      = /\n+ '----' \n+/;
     $pres<body>      = slurp($pres<file>).split($divider).map(&put-in-section).join;
     $pres<html-file> = $pres<file> ~ '.html';
+    $pres<reveal>    = $reveal;
 
     spurt $pres<html-file>, $template.subst(/'%' (@($pres.keys)) '%'/, -> $/ { $pres{~$0} }, :g);
 }
@@ -51,4 +54,11 @@ sub script-dir() {
 
     chdir $*PROGRAM_NAME.path.directory;
     cwd();
+}
+
+
+sub reveal-path($root-dir) {
+    my $root-to-cwd = $*CWD.subst("$root-dir/", '');
+    my $cwd-to-root = $root-to-cwd.subst(rx{<-['/']>+}, '..', :g);
+    "$cwd-to-root/3rdparty/reveal.js"
 }
