@@ -104,9 +104,7 @@ say $half.^methods;     # FatRat Num Int new nude norm
 ----
 # Classes all the way down
 ----
-XXXX: HOW, metaclass roles, KnowHOW, etc.
-
-XXXX: 6model?
+XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
 
 Rat -> Perl6::Metamodel::ClassHOW -> NQP::ClassHOW -> KnowHOW -> loop at end
 ----
@@ -181,6 +179,9 @@ XXXX
 ----
 # Grammars
 ----
+<!-- Yes, this is the real grammar; see:
+https://github.com/moritz/json/blob/master/lib/JSON/Tiny/Grammar.pm -->
+
 ```
 grammar JSON::Tiny::Grammar;
 
@@ -304,11 +305,15 @@ my $dot = [+] @vec1 »*« @vec2;
 # Huffmanized closures
 ----
 ```
-* > 5
+$max - *
+*.chars > 5
+(* ~ '.html').path.e
+
+{ .underage_by = max(0, 18 - .age) }
 { "Coords: ($^x, $^y, $^z)" }
+
 -> $name, $rank is rw, $serial? { ... }
 ```
-XXXX: Improve these
 ----
 XXXX: NativeCall
 ----
