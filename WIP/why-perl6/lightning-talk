@@ -1,30 +1,39 @@
 # Why Perl 6?
-<small>Geoff Broadwell</small>
-<small>gjb@google.com</small>
+
+Geoff Broadwell
+
+gjb@google.com
 ----
 # Guiding principles
-# XXXX: See http://www.perl.com/pub/2003/06/25/perl6essentials.html
-# XXXX: and http://irclog.perlgeek.de/perl6/2014-04-24#i_8632910
+
+<!-- XXXX: See http://www.perl.com/pub/2003/06/25/perl6essentials.html
+     and http://irclog.perlgeek.de/perl6/2014-04-24#i_8632910 -->
 ----
 TIMTOWTDI:
+
 There Is More Than One Way To Do It
-# XXXX: Syntax variations?
+
+<!-- XXXX: Syntax variations? -->
 ----
-We're designing a language for the next
-several decades; take the long view.
-----
-# XXXX: Segue
+We're designing a language for the next several decades;
+
+take the long view.
 ----
 # Sane type system
 ----
 Scalars: Bool, Int, Num, Rat, Str, IO, ...
+
 Natives: uint8, int32, num64, ...
+
 Aggregates: Pair, Array, Hash, Bag, Set, ...
+
 Errors: Exception, Failure, X::*, ...
+
 Specials: Mu, Any, Junction, Cool, ...
+
 Roles: Numeric, Stringy, Positional, ...
 ----
-[Type graph subset centered on Numeric](images/type-graph-Numeric.svg)
+![Type graph subset centered on Numeric](images/type-graph-Numeric.svg)
 ----
 # Gradual typing
 ----
@@ -33,7 +42,6 @@ my $a;      # Constraint: none,            default type: Any
 my @a;      # Constraint: Positional,      default type: Array
 my Str @a;  # Constraint: Positional[Str], default type: Array[Str]
 ```
-# XXXX: Better examples here?
 ----
 # Compile-time type checking
 ----
@@ -42,7 +50,7 @@ $ cat type-error
 sub double(Numeric $val) { $val * 2 }
 say double('bar');
 
-$ perl6 type-error 
+$ perl6 type-error
 ===SORRY!=== Error while compiling type-error
 Calling 'double' will never work with argument types (str)
     Expected: :(Numeric $val)
@@ -76,9 +84,9 @@ class Widget {
 }
 ```
 ----
-# XXXX: Roles
+XXXX: Roles
 ----
-# XXXX: Delegation
+XXXX: Delegation
 ----
 # Introspection
 ----
@@ -91,13 +99,15 @@ say $half.HOW;          # Perl6::Metamodel::ClassHOW.new()
 say $half.^mro;         # (Rat) (Cool) (Any) (Mu)
 say $half.^attributes;  # Int $!numerator Int $!denominator
 say $half.^methods;     # FatRat Num Int new nude norm
-                          floor ceiling abs sqrt sign ...
+                        # floor ceiling abs sqrt sign ...
 ```
 ----
 # Classes all the way down
 ----
-# XXXX: HOW, metaclass roles, KnowHOW, etc.
-# XXXX: 6model?
+XXXX: HOW, metaclass roles, KnowHOW, etc.
+
+XXXX: 6model?
+
 Rat -> Perl6::Metamodel::ClassHOW -> NQP::ClassHOW -> KnowHOW -> loop at end
 ----
 # Metamodel programming
@@ -156,15 +166,18 @@ $file.IO.slurp.lines
 # Threading
 ----
 ```
-# XXXX: Checksums of dir tree example    
+XXXX: Checksums of dir tree example
 ```
-# XXXX: Check against jnthn rant!
+
+XXXX: Check against jnthn rant!
 ----
 Channels, Supplies, Promises
-# XXXX: convenience methods, composability, sanity
+
+XXXX: convenience methods, composability, sanity
 ----
 Async I/O
-# XXXX
+
+XXXX
 ----
 # Grammars
 ----
@@ -223,7 +236,7 @@ Debugger
 ----
 Hackable
 
-# XXXX: Rakudo/NQP/VM layering diagram
+XXXX: Rakudo/NQP/VM layering diagram
 ----
 Give the user lots of tools to find and fix bugs.
 ----
@@ -238,7 +251,7 @@ Undeclared routine:
 ----
 # Deep inspection
 ----
-# XXXX: .Str, .gist, .perl, .DUMP
+XXXX: .Str, .gist, .perl, .DUMP
 ----
 **Make the easy things easy,**
 and the hard things possible.
@@ -254,7 +267,7 @@ Hello World!
 > enum Features < Powerful Concise Flexible >;
 > say Features.pick(3);
 Flexible Concise Powerful
-> 
+>
 ```
 ----
 # MAIN/USAGE
@@ -295,14 +308,14 @@ my $dot = [+] @vec1 »*« @vec2;
 { "Coords: ($^x, $^y, $^z)" }
 -> $name, $rank is rw, $serial? { ... }
 ```
-# XXXX: Improve these
+XXXX: Improve these
 ----
-# XXXX: NativeCall
+XXXX: NativeCall
 ----
 # Why Perl 6?
 ----
 # SO
 ----
-# MANY
+# SO MANY
 ----
-# REASONS
+# SO MANY REASONS
