@@ -3,19 +3,46 @@
 use v6;
 use JSON::Tiny;
 
+class DeckMaker {
+    has $.root-dir     = script-dir().parent;
+    has $.reveal-dir   = reveal-path($!root-dir);
+    has $.template-dir = $!root-dir.child('templates');
+    has $.decks-json-path;
+    has $.decks;
+    has %.templates;
+
+    method init() {
+        self.load-decks;
+        self.load-templates;
+    }
+
+    method load-decks() {
+        $!decks := from-json(slurp $.decks-json-path);
+        say "Loaded {+$.decks} deck definition{_s(+$.decks)} from $.decks-json-path";
+    }
+
+    method load-templates() {
+        %.templates<deck>  := slurp "$.template-dir/deck.html";
+        %.templates<index> := slurp "$.template-dir/index.html";
+        say "Loaded {+%.templates} template{_s(+%.templates)} from $.template-dir";
+    }
+
+    method gen-presentations() {
+        gen-presentation($_, %.templates<deck>, $.reveal-dir) for $.decks.list;
+        gen-index($.decks, %.templates<index>);
+        say "Generated {+$.decks} presentation{_s(+$.decks)} and updated index";
+    }
+}
+
+
 #= Merge template with Markdown slide files to create presentations
-multi MAIN ($decks-json-path = 'decks.json') {
-    my $decks    := from-json(slurp $decks-json-path);
-    my $root-dir := script-dir().parent;
-    my $tmpl-dir := $root-dir.child('templates');
-    my $reveal   := reveal-path($root-dir);
-    my $template := slurp "$tmpl-dir/deck.html";
-    my $index    := slurp "$tmpl-dir/index.html";
+multi MAIN($decks-json-path = 'decks.json') {
+    my $maker = DeckMaker.new(:$decks-json-path);
+    $maker.init;
 
-    gen-presentation($_, $template, $reveal) for $decks.list;
-    gen-index($decks, $index);
+    $maker.gen-presentations;
 
-    say "Completed {+$decks} presentation{$decks == 1 ?? '' !! 's'} in {(now - $*INITTIME).fmt('%.2f')} seconds.";
+    say "Completed {+$maker.decks} presentation{_s(+$maker.decks)} in {(now - $*INITTIME).fmt('%.2f')} seconds.";
 }
 
 
@@ -61,4 +88,10 @@ sub reveal-path($root-dir) {
     my $root-to-cwd = $*CWD.subst("$root-dir/", '');
     my $cwd-to-root = $root-to-cwd.subst(rx{<-['/']>+}, '..', :g);
     "$cwd-to-root/3rdparty/reveal.js"
+}
+
+
+#= Assist in declining English number phrases
+sub _s($number, $plural = 's', $singular = '') {
+    $number == 1 ?? $singular !! $plural;
 }
