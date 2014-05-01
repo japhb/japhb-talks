@@ -123,6 +123,5 @@ sub watch-tree($dir, :@skip) {
                       !! find(:$dir, :type<dir>);
     @dirs.push: $dir;
 
-    Supply.merge(@dirs.map: { IO::Notification.watch_path($_) });
+    Supply.merge(@dirs.map: *.watch);
 }
-
