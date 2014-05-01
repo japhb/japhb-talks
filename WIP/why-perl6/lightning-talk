@@ -124,11 +124,11 @@ $class.^compose;
 # Laziness
 ----
 ```
-my @odd    := 1, 3 ... *;
-my @odd_sq := @odd.map: { $_ * $_ };
-say @odd_sq[5];
+my @odd-numbers := 1, 3 ... *;
+my @odd-squares := @odd-numbers.map: { $_ * $_ };
+say @odd-squares[5];
 
-# 121
+--->  121
 ```
 ----
 # gather / take
@@ -148,7 +148,7 @@ my @negated = -«@val;
 my @doubled = @val »*» 2;
 my @ratios  = @num »/« @den;
 
-@growing »+=» 123;
+@increasing »+=» 123;
 ```
 ----
 # Feeds (pipelines)
@@ -173,13 +173,29 @@ Channels, Supplies, Promises
 
 XXXX: convenience methods, composability, sanity
 ----
+<!-- From the code that builds this very presentation:
+https://github.com/japhb/japhb-talks/blob/master/tools/make-presentations -->
+
+```
+watch-tree($.root-dir, :skip< .git 3rdparty >)\
+    .uniq(:as(*.path), :expires(1))\
+    .map(*.path)\
+    .grep({ interesting-path($_) })\
+    .act(-> $path {
+        $!log.more: "Noticed change at $path";
+        self.load-templates if $path ~~ /^ $tmpl-dir /;
+        self.load-decks     if $path ~~ / $json-path /;
+        self.gen-presentations;
+    });
+```
+----
 Async I/O
 
 XXXX
 ----
 # Grammars
 ----
-<!-- Yes, this is the real grammar; see:
+<!-- Yes, this is the real grammar:
 https://github.com/moritz/json/blob/master/lib/JSON/Tiny/Grammar.pm -->
 
 ```
