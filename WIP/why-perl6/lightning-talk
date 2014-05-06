@@ -6,24 +6,18 @@ gjb@google.com
 ----
 # Guiding principles
 
-<!-- XXXX: See http://www.perl.com/pub/2003/06/25/perl6essentials.html
+<!-- See http://www.perl.com/pub/2003/06/25/perl6essentials.html
      and http://irclog.perlgeek.de/perl6/2014-04-24#i_8632910 -->
 ----
-TIMTOWTDI:
+*We're designing a language for the next several decades;*
 
-There Is More Than One Way To Do It
-
-<!-- XXXX: Syntax variations? -->
-----
-We're designing a language for the next several decades;
-
-take the long view.
+*take the long view.*
 ----
 # Sane type system
 ----
 Scalars: Bool, Int, Num, Rat, Str, IO, ...
 
-Natives: uint8, int32, num64, ...
+Natives: uint8, int32, num32, num64, ...
 
 Aggregates: Pair, Array, Hash, Bag, Set, ...
 
@@ -38,9 +32,20 @@ Roles: Numeric, Stringy, Positional, ...
 # Gradual typing
 ----
 ```
-my $a;      # Constraint: none,            default type: Any
-my @a;      # Constraint: Positional,      default type: Array
-my Str @a;  # Constraint: Positional[Str], default type: Array[Str]
+my $foo;           # No useful type info
+my $num;           # A number?  Maybe?
+my Numeric  $num;  # Definitely acts like a number!
+my Real     $num;  # A real number (e.g. not Complex)
+my Rational $num;  # A rational number
+my Int      $num;  # An arbitrary length integer
+my uint32   $num;  # A 32-bit unsigned integer
+```
+----
+```
+my $a;         # Constraint: none,            default type: Any
+my @a;         # Constraint: Positional,      default type: Array
+my Str @a;     # Constraint: Positional[Str], default type: Array[Str]
+my Str @a[4];  # ... with exactly 4 elements
 ```
 ----
 # Compile-time type checking
@@ -84,14 +89,73 @@ class Widget {
 }
 ```
 ----
-XXXX: Roles
+# Roles
 ----
-XXXX: Delegation
+```
+class Person { }
+
+role Doctor {
+    has $.tricorder;
+    method cure(Person $p) { say "He's dead, Jim." }
+}
+
+role Officer {
+    has $.rank;
+    method command(Person $p, *@tasks) { }
+}
+
+class ChiefMedicalOfficer
+    is   Person
+    does Officer
+    does Doctor { }
+```
+----
+```
+role BrickLayer {
+    has $.trowel;
+    method cure($mortar) { say 'Just let it set awhile.' }
+}
+
+my ChiefMedicalOfficer $Bones .= new;
+
+say $Bones.^does(Doctor);      # True
+say $Bones.^does(BrickLayer);  # False
+say $Bones.^attributes».name;  # $!tricorder $!rank
+```
+----
+```
+class HortaHealer
+    is   Person
+    does Doctor
+    does BrickLayer { }
+
+my HortaHealer $doc .= new;
+```
+
+```
+===SORRY!===
+Method 'cure' must be resolved by class HortaHealer
+because it exists in multiple roles (BrickLayer, Doctor)
+```
+----
+# Delegation
+----
+<!-- Based on examples in the delegation spec:
+http://perlcabal.org/syn/S12.html#Delegation -->
+
+```
+class Dog {
+    has $.tail  handles 'wag';
+    has $.legs  handles < walk run lope shake lift >;
+    has $.fur   handles Groomable;
+    has $.brain handles *;
+}
+```
 ----
 # Introspection
 ----
 ```
-my $half = 1/2;
+my  $half = 1/2;
 say $half.WHAT;         # (Rat)
 say $half.WHICH;        # Rat|1/2
 say $half.WHERE;        # 140230308392360
@@ -105,6 +169,7 @@ say $half.^methods;     # FatRat Num Int new nude norm
 # Classes all the way down
 ----
 XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
+XXXX: Draw out with graphviz or pic
 
 Rat -> Perl6::Metamodel::ClassHOW -> NQP::ClassHOW -> KnowHOW -> loop at end
 ----
@@ -237,11 +302,96 @@ token str_escape {
 }
 ```
 ----
+# Grammars --> parse trees
+----
+```
+> say JSON::Tiny::Grammar.parse(q{ [1, "foo", {"answer": 42}] })
+｢ [1, "foo", {"answer": 42}] ｣
+ array => ｢[1, "foo", {"answer": 42}] ｣
+  arraylist => ｢1, "foo", {"answer": 42}｣
+   value => ｢1｣
+   value => ｢"foo"｣
+    string => ｢"foo"｣
+     str => ｢foo｣
+   value => ｢{"answer": 42}｣
+    object => ｢{"answer": 42}｣
+     pairlist => ｢"answer": 42｣
+      pair => ｢"answer": 42｣
+       string => ｢"answer"｣
+        str => ｢answer｣
+       value => ｢42｣
+```
+----
+# Actions
+----
+<!-- This is again the real code, but I've reformatted a little for clarity:
+https://github.com/moritz/json/blob/master/lib/JSON/Tiny/Actions.pm -->
+
+```
+class JSON::Tiny::Actions;
+
+method TOP($/)       { make $/.values.[0].ast }
+method object($/)    { make $<pairlist>.ast.hash.item }
+method pairlist($/)  { make $<pair>>>.ast.flat }
+method pair($/)      { make $<string>.ast => $<value>.ast }
+method array($/)     { make $<arraylist>.ast.item }
+method arraylist($/) { make [$<value>>>.ast] }
+method string($/)    {
+    make +@$<str> == 1
+        ?? $<str>[0].ast
+        !! $<str>>>.ast.join;
+}
+```
+----
+```
+method value:sym<number>($/) { make +$/.Str }
+method value:sym<string>($/) { make $<string>.ast }
+method value:sym<true>($/)   { make Bool::True  }
+method value:sym<false>($/)  { make Bool::False }
+method value:sym<null>($/)   { make Any }
+method value:sym<object>($/) { make $<object>.ast }
+method value:sym<array>($/)  { make $<array>.ast }
+
+method str($/)               { make ~$/ }
+```
+----
+```
+my %h = '\\' => "\\",
+        '/'  => "/",
+        'b'  => "\b",
+        'n'  => "\n",
+        't'  => "\t",
+        'f'  => "\f",
+        'r'  => "\r",
+        '"'  => "\"";
+method str_escape($/) {
+    if $<xdigit> {
+        make chr(:16($<xdigit>.join));
+    } else {
+        make %h{~$/};
+    }
+}
+```
+----
+# Grammars + Actions --> syntax trees
+----
+```
+> my  $json = q{ [1, "foo", {"answer": 42}] };
+  my  JSON::Tiny::Actions $actions .= new;
+  say JSON::Tiny::Grammar.parse($json, :$actions).ast.perl;
+[1, "foo", {"answer" => 42}]
+
+> say from-json($json).perl;  # Convenience routines FTW
+[1, "foo", {"answer" => 42}]
+```
+----
 # Operators
 ----
 Unicode
 ----
 Texas
+----
+Roll your own
 ----
 # Miscellaneous
 ----
@@ -268,7 +418,7 @@ Undeclared routine:
 ----
 # Deep inspection
 ----
-XXXX: .Str, .gist, .perl, .DUMP
+XXXX: Going deeper: .Str, .gist, .perl, .DUMP
 ----
 **Make the easy things easy,**
 and the hard things possible.
@@ -340,3 +490,13 @@ XXXX: NativeCall
 # SO MANY
 ----
 # SO MANY REASONS
+----
+XXXX: EXTRAS
+----
+*TIMTOWTDI:*
+
+*There Is More Than One Way To Do It*
+
+<!-- XXXX: Syntax variations? -->
+----
+# XXXX: Convert all examples to files in examples/ dir

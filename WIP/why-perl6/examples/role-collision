@@ -1,0 +1,28 @@
+class Person { }
+
+role Doctor {
+    has $.tricorder;
+    method cure(Person $p) { say "He's dead, Jim." }
+}
+
+role Officer {
+    has $.rank;
+    method command(Person $p, *@tasks) { }
+}
+
+class ChiefMedicalOfficer
+    is   Person
+    does Officer
+    does Doctor { }
+
+role BrickLayer {
+    has $.trowel;
+    method cure($mortar) { say 'Just let it set awhile.' }
+}
+
+class HortaHealer
+    is   Person
+    does Doctor
+    does BrickLayer { }
+
+my HortaHealer $doc .= new;
