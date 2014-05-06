@@ -60,6 +60,7 @@ class DeckMaker {
 
     method gen-presentations() {
         self.gen-presentation($_) for $.decks.list;
+	refresh-browser(.<title>) for $.decks.list;
         self.gen-index;
         $!log.more: "Generated {+$.decks} presentation{_s(+$.decks)} and updated index";
     }
@@ -124,4 +125,16 @@ sub watch-tree($dir, :@skip) {
     @dirs.push: $dir;
 
     Supply.merge(@dirs.map: *.watch);
+}
+
+#= Check if a program exists in the path
+sub runnable($program) {
+    state %cache;
+    %cache{$program} //= so shell "which '$program' >/dev/null 2>&1";
+}
+
+#= Refresh matching web browser
+sub refresh-browser($regex) {
+    run « xdotool search --name "$regex" windowactivate --sync key shift+F5 »
+        if %*ENV<DISPLAY> && runnable('xdotool');
 }
