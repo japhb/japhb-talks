@@ -1,12 +1,12 @@
 # Why Perl 6?
 
-Geoff Broadwell
+### Geoff Broadwell
 
 gjb@google.com
 
 japhb on Freenode and GitHub
 ----
-# Guiding principles
+## Guiding principles
 
 <!-- See http://www.perl.com/pub/2003/06/25/perl6essentials.html
      and http://irclog.perlgeek.de/perl6/2014-04-24#i_8632910 -->
@@ -15,7 +15,7 @@ japhb on Freenode and GitHub
 
 and the hard things possible.
 ----
-# Proper REPL
+## Proper REPL
 ----
 ```
 $ perl6
@@ -29,7 +29,7 @@ Flexible Concise Powerful
 >
 ```
 ----
-# Simplified common operations
+## Simplified common operations
 ----
 ```
 if 0 < $a < 27 { ... }
@@ -42,7 +42,7 @@ my $dot   = [+] @vec1 »*« @vec2;
 my $range = minmax @values;
 ```
 ----
-# Huffmanized closures
+## Huffmanized closures
 ----
 ```
 # Expression closures using '*'
@@ -58,7 +58,7 @@ $max - *
 -> $name, $rank, $serial? { ... }
 ```
 ----
-# Powerful, flexible builtins
+## Powerful, flexible builtins
 ----
 ```
 # Type-sensitive stable default sort
@@ -68,20 +68,24 @@ $max - *
 # Sort according to an extracted key
 @planets.sort(*.mass)
 
-# Sort using a custom comparator
-# (ascending  numeric on column 4,
-#  descending stringy on column 2)
+# Sort using a custom comparator:
+#    ascending numeric on column 4,
+#   descending stringy on column 2
 @table-rows.sort({  $^a[3] <=> $^b[3]
-		 || $^b[1] leg $^a[1] })
+                 || $^b[1] leg $^a[1] })
 ```
 ----
 XXXX: More Examples
-Str:  comb, samecase, samespace, trans, indent, unival?
+
+Str:  comb, samecase, samespace, trans, indent, unival
+
 Any:  classify/categorize with :into, minmax
+
 Mu:   perl, DUMP
+
 List: end, fmt, munch, pick, roll, rotate, rotor, kv
 ----
-# Easy scripts: MAIN/USAGE
+## Easy tool making: MAIN/USAGE
 ----
 ```
 #= List known instances
@@ -95,18 +99,16 @@ multi MAIN('delete', Str $name, Bool :$force) { ... }
 ```
 ----
 ```
-$ ./app   # or `./app -?` or `./app --help`
+$ ./app  # or `./app -?` or `./app --help`
 Usage:
   ./app list -- List known instances
   ./app init [<name>] -- Initialize a new instance
   ./app [--force] delete <name> -- Delete an instance
 ```
 ----
-*We're designing a language for the next several decades;*
-
-*take the long view.*
+*We're designing a language for the next several decades; take the long view.*
 ----
-# Sane type system
+## Sane type system
 ----
 Scalars: Bool, Int, Num, Rat, Str, IO, ...
 
@@ -122,7 +124,7 @@ Roles: Numeric, Stringy, Positional, ...
 ----
 ![Type graph subset centered on Numeric](images/type-graph-Numeric.svg)
 ----
-# Subset types
+## Subset types
 ----
 ```
 > subset Palindrome of Str where { $^a eq $^a.flip }
@@ -132,7 +134,7 @@ False
 True
 ```
 ----
-# Gradual typing
+## Gradual typing
 ----
 ```
 my $foo;           # No useful type info
@@ -151,7 +153,7 @@ my Str @a;     # Constraint: Positional[Str], default type: Array[Str]
 my Str @a[4];  # ... with exactly 4 elements
 ```
 ----
-# Compile-time type checking
+## Compile-time type checking
 ----
 ```
 $ cat type-error
@@ -166,7 +168,7 @@ at type-error:2
 ------> say ⏏double('bar');
 ```
 ----
-# Multi-dispatch
+## Multi-dispatch
 ----
 ```
 $ cat type-multi
@@ -178,7 +180,7 @@ $ perl6 type-multi
 barbar
 ```
 ----
-# Clear, concise OO syntax
+## Clear, concise OO syntax
 ----
 ```
 class Widget {
@@ -192,7 +194,7 @@ class Widget {
 }
 ```
 ----
-# Roles
+## Roles
 ----
 ```
 class Person { }
@@ -241,7 +243,7 @@ Method 'cure' must be resolved by class HortaHealer
 because it exists in multiple roles (BrickLayer, Doctor)
 ```
 ----
-# Delegation
+## Delegation
 ----
 <!-- Based on examples in the delegation spec:
 http://perlcabal.org/syn/S12.html#Delegation -->
@@ -255,7 +257,7 @@ class Dog {
 }
 ```
 ----
-# Introspection
+## Introspection
 ----
 ```
 my  $half = 1/2;
@@ -269,14 +271,14 @@ say $half.^methods;     # FatRat Num Int new nude norm
                         # floor ceiling abs sqrt sign ...
 ```
 ----
-# Classes all the way down
+## Classes all the way down
 ----
 XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
 XXXX: Draw out with graphviz or pic
 
 Rat -> Perl6::Metamodel::ClassHOW -> NQP::ClassHOW -> KnowHOW -> loop at end
 ----
-# Metamodel programming
+## Metamodel programming
 ----
 ```
 # Equivalent to:  class MyShinyNewClass { has Int $.val; }
@@ -291,20 +293,20 @@ $class.^add_attribute($attr);
 $class.^compose;
 ```
 ----
-# XXXX: Main header for laziness .. concurrency section
+## XXXX: Main header for laziness .. concurrency section
 ----
-# Laziness
+## Laziness
 ----
 ```
-my @odd-numbers   := 1, 3 ... *;
-my @odd-squares   := @odd-numbers.map: { $_ * $_ };
-my @palin-squares := @odd-squares.grep: { $_ eq $_.flip };
+my  @odd-numbers   := 1, 3 ... *;
+my  @odd-squares   := @odd-numbers.map: { $_ * $_ };
+my  @palin-squares := @odd-squares.grep: { $_ eq $_.flip };
 say @palin-squares[5];
 
 --->  14641
 ```
 ----
-# gather / take
+## gather / take
 ----
 ```
 my @squished = gather for @list {
@@ -312,10 +314,11 @@ my @squished = gather for @list {
     next if $_ === $previous;
     $previous = take $_;
 }
-```
+
 # XXXX: Sample input and output for this
+```
 ----
-# Parallelizable ops
+## Parallelizable ops
 ----
 ```
 my @negated = -«@val;
@@ -325,7 +328,7 @@ my @ratios  = @num »/« @den;
 @increasing »+=» 123;
 ```
 ----
-# Feeds (pipelines)
+## Feeds (pipelines)
 ----
 ```
 $file.IO.slurp.lines
@@ -335,19 +338,19 @@ $file.IO.slurp.lines
     ==> my @outline;
 ```
 ----
-# Threading
+## Threading
 ----
 ```
 XXXX: Checksums of dir tree example
-```
 
 XXXX: Check against jnthn rant!
+```
 ----
-# Channels, Supplies, Promises
+## Channels, Supplies, Promises
 
 XXXX: convenience methods, composability, sanity, combinators and metacombinators
 ----
-# Filesystem watchers
+## Filesystem watchers
 ----
 <!-- From the code that builds this very presentation:
 https://github.com/japhb/japhb-talks/blob/master/tools/make-presentations -->
@@ -369,9 +372,9 @@ Async I/O
 
 XXXX
 ----
-# XXXX: Main header for languages section
+## XXXX: Main header for languages section
 ----
-# Grammars
+## Grammars
 ----
 <!-- Yes, this is the real grammar:
 https://github.com/moritz/json/blob/master/lib/JSON/Tiny/Grammar.pm -->
@@ -415,7 +418,7 @@ token str_escape {
 }
 ```
 ----
-# Grammars --> parse trees
+## Grammars --> parse trees
 ----
 ```
 > say JSON::Tiny::Grammar.parse(q{ [1, "foo", {"answer": 42}] })
@@ -435,7 +438,7 @@ token str_escape {
        value => ｢42｣
 ```
 ----
-# Actions
+## Actions
 ----
 <!-- This is again the real code, but I've reformatted a little for clarity:
 https://github.com/moritz/json/blob/master/lib/JSON/Tiny/Actions.pm -->
@@ -486,7 +489,7 @@ method str_escape($/) {
 }
 ```
 ----
-# Grammars + Actions --> syntax trees
+## Grammars + Actions --> syntax trees
 ----
 ```
 > my  $json = q{ [1, "foo", {"answer": 42}] };
@@ -498,7 +501,7 @@ method str_escape($/) {
 [1, "foo", {"answer" => 42}]
 ```
 ----
-# Operators
+## Operators
 ----
 Unicode
 ----
@@ -506,7 +509,7 @@ Texas
 ----
 Roll your own
 ----
-# Miscellaneous
+## Miscellaneous
 ----
 Portability
 ----
@@ -518,9 +521,9 @@ Hackable
 
 XXXX: Rakudo/NQP/VM layering diagram
 ----
-Give the user lots of tools to find and fix bugs.
+*Give the user lots of tools to find and fix bugs.*
 ----
-# Awesome error messages
+## Awesome error messages
 ----
 ```
 $ perl6 -e 'saw "Hello!"'
@@ -529,7 +532,7 @@ Undeclared routine:
     saw used at line 1. Did you mean 'say'?
 ```
 ----
-# Deep inspection
+## Deep inspection
 ----
 XXXX: Going deeper: .Str, .gist, .perl, .DUMP
 ----
@@ -537,11 +540,11 @@ XXXX: NativeCall
 ----
 # Why Perl 6?
 ----
-# SO
+## SO
 ----
-# SO MANY
+## SO MANY
 ----
-# SO MANY REASONS
+## SO MANY REASONS
 ----
 XXXX: EXTRAS
 ----
@@ -551,12 +554,12 @@ XXXX: EXTRAS
 
 <!-- XXXX: Syntax variations? -->
 ----
-# XXXX: Convert all examples to files in examples/ dir
+## XXXX: Convert all examples to files in examples/ dir
 ----
 Triangular numbers example
 
 ----
-# Composable building blocks
+## Composable building blocks
 ----
 ```
 > .say for permutations(3)
