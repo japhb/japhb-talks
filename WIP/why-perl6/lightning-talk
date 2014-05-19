@@ -3,11 +3,104 @@
 Geoff Broadwell
 
 gjb@google.com
+
+japhb on Freenode and GitHub
 ----
 # Guiding principles
 
 <!-- See http://www.perl.com/pub/2003/06/25/perl6essentials.html
      and http://irclog.perlgeek.de/perl6/2014-04-24#i_8632910 -->
+----
+*Make the easy things easy,*
+
+and the hard things possible.
+----
+# Proper REPL
+----
+```
+$ perl6
+> say 'Hello World!';
+Hello World!
+> (^10).list
+0 1 2 3 4 5 6 7 8 9
+> enum Features < Powerful Concise Flexible >;
+> say Features.pick(3);
+Flexible Concise Powerful
+>
+```
+----
+# Simplified common operations
+----
+```
+if 0 < $a < 27 { ... }
+if $b eq 'foo' | 'bar' | 'baz' { ... }
+if [<=] @values { say 'sorted' }
+
+my $count = +@players;
+my $sum   = [+] @scores;
+my $dot   = [+] @vec1 »*« @vec2;
+my $range = minmax @values;
+```
+----
+# Huffmanized closures
+----
+```
+# Expression closures using '*'
+$max - *
+*.chars > 5
+(* ~ '.html').path.e
+
+# Bare block closures with implicit arguments
+{ .underage_by = max(0, 18 - .age) }
+{ "Coords: ($^x, $^y, $^z)" }
+
+# Pointy block closures with explicit arguments
+-> $name, $rank, $serial? { ... }
+```
+----
+# Powerful, flexible builtins
+----
+```
+# Type-sensitive stable default sort
+@strings.sort          # ascending
+@numbers.sort.reverse  # descending
+
+# Sort according to an extracted key
+@planets.sort(*.mass)
+
+# Sort using a custom comparator
+# (ascending  numeric on column 4,
+#  descending stringy on column 2)
+@table-rows.sort({  $^a[3] <=> $^b[3]
+		 || $^b[1] leg $^a[1] })
+```
+----
+XXXX: More Examples
+Str:  comb, samecase, samespace, trans, indent, unival?
+Any:  classify/categorize with :into, minmax
+Mu:   perl, DUMP
+List: end, fmt, munch, pick, roll, rotate, rotor, kv
+----
+# Easy scripts: MAIN/USAGE
+----
+```
+#= List known instances
+multi MAIN('list') { ... }
+
+#= Initialize a new instance
+multi MAIN('init', Str $name = 'DEFAULT') { ... }
+
+#= Delete an instance
+multi MAIN('delete', Str $name, Bool :$force) { ... }
+```
+----
+```
+$ ./app   # or `./app -?` or `./app --help`
+Usage:
+  ./app list -- List known instances
+  ./app init [<name>] -- Initialize a new instance
+  ./app [--force] delete <name> -- Delete an instance
+```
 ----
 *We're designing a language for the next several decades;*
 
@@ -29,13 +122,23 @@ Roles: Numeric, Stringy, Positional, ...
 ----
 ![Type graph subset centered on Numeric](images/type-graph-Numeric.svg)
 ----
+# Subset types
+----
+```
+> subset Palindrome of Str where { $^a eq $^a.flip }
+> 'foobar' ~~ Palindrome
+False
+> 'deified' ~~ Palindrome
+True
+```
+----
 # Gradual typing
 ----
 ```
 my $foo;           # No useful type info
 my $num;           # A number?  Maybe?
 my Numeric  $num;  # Definitely acts like a number!
-my Real     $num;  # A real number (e.g. not Complex)
+my Real     $num;  # A real number (not e.g. Complex)
 my Rational $num;  # A rational number
 my Int      $num;  # An arbitrary length integer
 my uint32   $num;  # A 32-bit unsigned integer
@@ -79,9 +182,9 @@ barbar
 ----
 ```
 class Widget {
-    has @.parts;
-    has $.brand is rw;
-    has $!code-name;
+    has @.parts;        # Attribute + RO accessor
+    has $.brand is rw;  # Attribute + RW accessor
+    has $!code-name;    # Private attribute
 
     method list-bom() {
         .say for @.parts;
@@ -176,24 +279,29 @@ Rat -> Perl6::Metamodel::ClassHOW -> NQP::ClassHOW -> KnowHOW -> loop at end
 # Metamodel programming
 ----
 ```
-# class MyShinyNewClass { has Int $.val; }
+# Equivalent to:  class MyShinyNewClass { has Int $.val; }
+
 my $name  := 'MyShinyNewClass';
 my $class := Perl6::MetaModel::ClassHOW.new_type(:$name);
 my $attr  := Attribute.new(:name('$!val'), :type(Int),
                            :package($class), :has_accessor);
+
 $class.HOW.add_parent($class, Any);
 $class.^add_attribute($attr);
 $class.^compose;
 ```
 ----
+# XXXX: Main header for laziness .. concurrency section
+----
 # Laziness
 ----
 ```
-my @odd-numbers := 1, 3 ... *;
-my @odd-squares := @odd-numbers.map: { $_ * $_ };
-say @odd-squares[5];
+my @odd-numbers   := 1, 3 ... *;
+my @odd-squares   := @odd-numbers.map: { $_ * $_ };
+my @palin-squares := @odd-squares.grep: { $_ eq $_.flip };
+say @palin-squares[5];
 
---->  121
+--->  14641
 ```
 ----
 # gather / take
@@ -205,6 +313,7 @@ my @squished = gather for @list {
     $previous = take $_;
 }
 ```
+# XXXX: Sample input and output for this
 ----
 # Parallelizable ops
 ----
@@ -234,9 +343,11 @@ XXXX: Checksums of dir tree example
 
 XXXX: Check against jnthn rant!
 ----
-Channels, Supplies, Promises
+# Channels, Supplies, Promises
 
-XXXX: convenience methods, composability, sanity
+XXXX: convenience methods, composability, sanity, combinators and metacombinators
+----
+# Filesystem watchers
 ----
 <!-- From the code that builds this very presentation:
 https://github.com/japhb/japhb-talks/blob/master/tools/make-presentations -->
@@ -257,6 +368,8 @@ watch-tree($.root-dir, :skip< .git 3rdparty >)\
 Async I/O
 
 XXXX
+----
+# XXXX: Main header for languages section
 ----
 # Grammars
 ----
@@ -420,67 +533,6 @@ Undeclared routine:
 ----
 XXXX: Going deeper: .Str, .gist, .perl, .DUMP
 ----
-**Make the easy things easy,**
-and the hard things possible.
-----
-# REPL
-----
-```
-$ perl6
-> say 'Hello World!';
-Hello World!
-> my @triangular := [\+] 1 ... *; say @triangular[^10];
-1 3 6 10 15 21 28 36 45 55
-> enum Features < Powerful Concise Flexible >;
-> say Features.pick(3);
-Flexible Concise Powerful
->
-```
-----
-# MAIN/USAGE
-----
-```
-#= List known instances
-multi MAIN('list') { ... }
-
-#= Initialize a new instance
-multi MAIN('init', Str $name = 'DEFAULT') { ... }
-
-#= Delete an instance
-multi MAIN('delete', Str $name, Bool :$force) { ... }
-```
-----
-```
-$ ./app   # or `./app -?` or `./app --help`
-Usage:
-  ./app list -- List known instances
-  ./app init [<name>] -- Initialize a new instance
-  ./app [--force] delete <name> -- Delete an instance
-```
-----
-# Simplified common operations
-----
-```
-if 0 < $a < 27 { ... }
-if $b eq 'foo' | 'bar' { ... }
-if [<=] @values { say 'sorted' }
-my $sum = [+] @values;
-my $dot = [+] @vec1 »*« @vec2;
-```
-----
-# Huffmanized closures
-----
-```
-$max - *
-*.chars > 5
-(* ~ '.html').path.e
-
-{ .underage_by = max(0, 18 - .age) }
-{ "Coords: ($^x, $^y, $^z)" }
-
--> $name, $rank is rw, $serial? { ... }
-```
-----
 XXXX: NativeCall
 ----
 # Why Perl 6?
@@ -500,3 +552,25 @@ XXXX: EXTRAS
 <!-- XXXX: Syntax variations? -->
 ----
 # XXXX: Convert all examples to files in examples/ dir
+----
+Triangular numbers example
+
+----
+# Composable building blocks
+----
+```
+> .say for permutations(3)
+0 1 2
+0 2 1
+1 0 2
+1 2 0
+2 0 1
+2 1 0
+> .say for combinations(4, 2)
+0 1
+0 2
+0 3
+1 2
+1 3
+2 3
+```
