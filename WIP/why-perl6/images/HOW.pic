@@ -1,10 +1,17 @@
+scale  = 1;
+boxwid = 2;
+boxht  = .5;
+boxrad = .15;
+
 down;
 box "Rat|1/2";
-arrow "" ".HOW";
+arrow " .HOW" ljust;
 box "Perl6::MetaModel::ClassHOW";
-arrow "" ".HOW";
+arrow " .HOW" ljust;
 box "NQP::ClassHOW";
-arrow "" ".HOW";
+arrow " .HOW" ljust;
 box "KnowHOW";
-line "" ".HOW" then left then up;
-arrow to last box .w;
+line .25 " .HOW" ljust from last box .s + ((.25 * scale), 0);
+arc cw;
+arc cw;
+arrow .25;
