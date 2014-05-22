@@ -273,10 +273,10 @@ say $half.^methods;     # FatRat Num Int new nude norm
 ----
 ## Classes all the way down
 ----
+![.HOW chain starting at Rat|1/2](images/HOW.svg)
+----
 XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
 XXXX: Draw out with graphviz or pic
-
-Rat -> Perl6::Metamodel::ClassHOW -> NQP::ClassHOW -> KnowHOW -> loop at end
 ----
 ## Metamodel programming
 ----
