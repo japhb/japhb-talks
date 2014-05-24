@@ -75,16 +75,6 @@ $max - *
                  || $^b[1] leg $^a[1] })
 ```
 ----
-XXXX: More Examples
-
-Str:  comb, samecase, samespace, trans, indent, unival
-
-Any:  classify/categorize with :into, minmax
-
-Mu:   perl, DUMP
-
-List: end, fmt, munch, pick, roll, rotate, rotor, kv
-----
 ## Easy tool making: MAIN/USAGE
 ----
 ```
@@ -156,10 +146,11 @@ my Str @a[4];  # ... with exactly 4 elements
 ## Compile-time type checking
 ----
 ```
-$ cat type-error
 sub double(Numeric $val) { $val * 2 }
 say double('bar');
+```
 
+```
 $ perl6 type-error
 ===SORRY!=== Error while compiling type-error
 Calling 'double' will never work with argument types (str)
@@ -171,11 +162,12 @@ at type-error:2
 ## Multi-dispatch
 ----
 ```
-$ cat type-multi
 multi double(Numeric $val) { $val * 2 }
 multi double(Stringy $val) { $val x 2 }
 say double('bar');
+```
 
+```
 $ perl6 type-multi
 barbar
 ```
@@ -275,9 +267,6 @@ say $half.^methods;     # FatRat Num Int new nude norm
 ----
 ![.HOW chain starting at Rat|1/2](images/HOW.svg)
 ----
-XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
-XXXX: Draw out with graphviz or pic
-----
 ## Metamodel programming
 ----
 ```
@@ -293,9 +282,11 @@ $class.^add_attribute($attr);
 $class.^compose;
 ```
 ----
-## XXXX: Main header for laziness .. concurrency section
+*Three great virtues of a programmer:*
+
+*Laziness, Impatience, and Hubris.*
 ----
-## Laziness
+## Lazy evaluation
 ----
 ```
 my  @odd-numbers   := 1, 3 ... *;
@@ -309,13 +300,16 @@ say @palin-squares[5];
 ## gather / take
 ----
 ```
-my @squished = gather for @list {
-    state $previous = take $_;
-    next if $_ === $previous;
-    $previous = take $_;
+sub squish(*@list) {
+    gather for @list {
+        state $previous = take $_;
+        next if $_ === $previous;
+        $previous = take $_;
+    }
 }
+say squish(1, 2, 2, 2, 1, 5, 5, 9);
 
-# XXXX: Sample input and output for this
+---> 1 2 1 5 9
 ```
 ----
 ## Parallelizable ops
@@ -340,10 +334,27 @@ $file.IO.slurp.lines
 ----
 ## Threading
 ----
-```
-XXXX: Checksums of dir tree example
+<!-- From jnthn's rant on thread-safe programming, with some slight adjustments for clarity here:
+http://6guts.wordpress.com/2014/04/17/racing-to-writeness-to-wrongness-leads/ -->
 
-XXXX: Check against jnthn rant!
+```
+# Compute a histogram of words across many files
+# Process each file in a separate task using a thread pool
+my @all_counts = await do for @files -> $filename {
+    start {
+        my %word_counts;
+        for slurp($filename).words {
+            %word_counts{$_}++;
+        }
+        %word_counts
+    }
+}
+
+# Bring the subtotals together into a single result
+my %totals;
+for @all_counts {
+    %totals{.key} += .value;
+}
 ```
 ----
 ## Channels, Supplies, Promises
@@ -372,7 +383,7 @@ Async I/O
 
 XXXX
 ----
-## XXXX: Main header for languages section
+*Communication can only happen when you agree on the language.*
 ----
 ## Grammars
 ----
@@ -577,3 +588,16 @@ Triangular numbers example
 1 3
 2 3
 ```
+----
+XXXX: More builtins examples
+
+Str:  comb, samecase, samespace, trans, indent, unival
+
+Any:  classify/categorize with :into, minmax
+
+Mu:   perl, DUMP
+
+List: end, fmt, munch, pick, roll, rotate, rotor, kv
+----
+XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
+XXXX: Draw out with graphviz or pic
