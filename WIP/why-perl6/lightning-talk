@@ -273,7 +273,7 @@ say $half.^methods;     # FatRat Num Int new nude norm
 # Equivalent to:  class MyShinyNewClass { has Int $.val; }
 
 my $name  := 'MyShinyNewClass';
-my $class := Perl6::MetaModel::ClassHOW.new_type(:$name);
+my $class := Metamodel::ClassHOW.new_type(:$name);
 my $attr  := Attribute.new(:name('$!val'), :type(Int),
                            :package($class), :has_accessor);
 
@@ -289,10 +289,10 @@ $class.^compose;
 ## Lazy evaluation
 ----
 ```
-my  @odd-numbers   := 1, 3 ... *;
-my  @odd-squares   := @odd-numbers.map: { $_ * $_ };
-my  @palin-squares := @odd-squares.grep: { $_ eq $_.flip };
-say @palin-squares[5];
+my  @odd-numbers  := 1, 3 ... *;
+my  @odd-squares  := @odd-numbers.map: { $_ * $_ };
+my  @palin-odd-sq := @odd-squares.grep: { $_ eq $_.flip };
+say @palin-odd-sq[5];
 
 --->  14641
 ```
@@ -379,8 +379,8 @@ watch-tree($.root-dir, :skip< .git 3rdparty >)\
     });
 ```
 ----
-Async I/O
-
+## Async I/O
+----
 XXXX
 ----
 *Communication can only happen when you agree on the language.*
