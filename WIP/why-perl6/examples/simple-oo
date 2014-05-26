@@ -1,0 +1,17 @@
+class Widget {
+    has @.parts;        # Attribute + RO accessor
+    has $.brand is rw;  # Attribute + RW accessor
+    has $!code-name;    # Private attribute
+
+    method list-bom() {
+        .indent(4).say for @.parts;
+    }
+}
+
+my Widget $w .= new(:brand('Foomatic Widget™'),
+                    :parts(< frobnitzer waggler engine hinge >));
+
+$w.brand = 'Gonzo UltraWidget®';
+
+say "The $w.brand() contains:";
+$w.list-bom;
