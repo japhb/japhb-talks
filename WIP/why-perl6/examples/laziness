@@ -1,4 +1,4 @@
-my @odd-numbers   := 1, 3 ... *;
-my @odd-squares   := @odd-numbers.map: { $_ * $_ };
-my @palin-squares := @odd-squares.grep: { $_ eq $_.flip };
-say @palin-squares[5];
+my  @odd-numbers  := 1, 3 ... *;
+my  @odd-squares  := @odd-numbers.map: { $_ * $_ };
+my  @palin-odd-sq := @odd-squares.grep: { $_ eq $_.flip };
+say @palin-odd-sq[5];

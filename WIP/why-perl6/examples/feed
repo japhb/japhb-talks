@@ -1,10 +1,12 @@
-my $file = 'markup.txt';
+my $file = $*PROGRAM_NAME.path.directory ~ '/markup.txt';
+
 $file.IO.slurp.lines
     ==> parse-lines()
     ==> grep(*.is-header)
     ==> map({ '  ' x .depth ~ .text })
     ==> my @outline;
 .say for @outline;
+
 
 class ParsedLine {
     has Bool $.is-header;
