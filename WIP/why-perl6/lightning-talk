@@ -381,8 +381,57 @@ for @all_counts {
 }
 ```
 ----
-## Channels, Supplies, Promises
+## Promises
+----
+```
+my $promise = Promise.new;            # Thread-safe promise to do or die
+my $combined-promise                  # Do something more after first
+    = $promise.then({ say .status })  #     promise completes
 
+my $vow = $promise.vow;  # Exclusive right to set promise status once
+$vow.keep($result);      # Set Kept   and $promise.result
+                         #  - OR -
+$vow.break($exception);  # Set Broken and $promise.cause
+```
+----
+<!-- XXXX: Is this misleading because a timeout doesn't
+stop the long calculation in progress? -->
+
+```
+# Both start {} and Promise.in() return Promises
+my $calc  = start { ... long running calculation ... };
+my $timer = Promise.in($timeout);
+
+await Promise.anyof($calc, $timer);
+say $calc.status == Kept ?? $calc.result !! 'Timed out!';
+```
+----
+## Channels: producer/consumer
+----
+<!-- examples/channels -->
+
+```
+# Concurrent blocking queues between stages
+my $source = Channel.new;
+my $sink   = Channel.new;
+
+# Stage 1: 1 source/preparation task
+start { @jobs.map: { $source.send(prepare-job($_)) } }
+
+# Stage 2: 4 worker/processing tasks
+for ^4 {
+    start { loop { winner $source {
+	more * { $sink.send(process-job($_)) }
+	done * { last }
+    } } }
+}
+
+# Stage 3: 1 sink/output task (in main thread)
+.say for $sink.list;
+```
+----
+## Supplies: publish/subscribe
+----
 XXXX: convenience methods, composability, sanity, combinators and metacombinators
 ----
 ## Filesystem watchers
