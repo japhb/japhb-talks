@@ -9,13 +9,16 @@ my $source = Channel.new;
 my $sink   = Channel.new;
 
 # Stage 1: 1 source/preparation task
-start { @jobs.map: { $source.send(prepare-job($_)) } }
+start {
+    @jobs.map: { $source.send(prepare-job($_)) };
+    $source.close;
+}
 
 # Stage 2: 4 worker/processing tasks
 for ^4 {
     start { loop { winner $source {
 	more * { $sink.send(process-job($_)) }
-	done * { last }
+	done * { $sink.close; last }
     } } }
 }
 
