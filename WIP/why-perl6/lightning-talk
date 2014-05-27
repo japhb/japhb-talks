@@ -424,7 +424,9 @@ start {
     @jobs.map: { $source.send(prepare-job($_)) };
     $source.close;
 }
-
+```
+----
+```
 # Stage 2: 4 worker/processing tasks
 for ^4 {
     start { loop { winner $source {
@@ -609,7 +611,7 @@ Community
 Debugger
 ----
 Hackable
-
+----
 XXXX: Rakudo/NQP/VM layering diagram
 ----
 *Give the user lots of tools to find and fix bugs.*
@@ -637,6 +639,7 @@ XXXX: NativeCall
 ----
 ## SO MANY REASONS
 ----
+----
 XXXX: EXTRAS
 ----
 *TIMTOWTDI:*
@@ -645,10 +648,7 @@ XXXX: EXTRAS
 
 <!-- XXXX: Syntax variations? -->
 ----
-## XXXX: Convert all examples to files in examples/ dir
-----
 Triangular numbers example
-
 ----
 ## Composable building blocks
 ----
