@@ -1,0 +1,9 @@
+my $every1  = Supply.interval(1).map(* + 1);
+my $every3  = $every1.grep(* %% 3).map:  { "$_ Fizz"     };
+my $every5  = $every1.grep(* %% 5).map:  { "$_ Buzz"     };
+my $every15 = $every1.grep(* %% 15).map: { "$_ FizzBuzz" };
+
+my $merged = Supply.merge($every15, $every5, $every3, $every1);
+$merged.map(*.Str.words).uniq(:as(*[0])).tap({.[*-1].say});
+
+sleep 30;
