@@ -464,8 +464,8 @@ https://github.com/japhb/japhb-talks/blob/master/tools/make-presentations -->
 
 ```
 watch-tree($.root-dir, :skip< .git 3rdparty >)\
-    .uniq(:as(*.path), :expires(1))\
     .map(*.path)\
+    .uniq(:expires(1))\
     .grep({ interesting-path($_) })\
     .act(-> $path {
         $!log.more: "Noticed change at $path";
