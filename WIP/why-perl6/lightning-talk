@@ -42,6 +42,35 @@ my $dot   = [+] @vec1 »*« @vec2;
 my $range = minmax @values;
 ```
 ----
+## Extended operator selection
+----
+Comparison | cmp before after                   | Generic
+           | leg lt le ge gt                    | Stringy
+           | <=> <  <= >=  >                    | Numeric
+           | eq eqv == === =:= ~~               | Equivalence
+Set        | ∈ ∉ ∋ ∌ ∪ ∩ ⊖ ⊂ ⊆                  | Unicode
+           | (elem) (cont) (|) (&) (^) (<) (<=) | Texas
+Misc       | min max minmax gcd lcm div %%      | Numeric
+----
+## User defined operators
+----
+<!-- examples/user-defined-ops -->
+
+```
+multi postfix:<!>(Int $i) { [*] 1..$i     }
+multi postfix:<!>(Str $s) { $s.uc ~ '!'   }
+multi prefix:<⚠>(Str $s)  { "WARNING: $s" }
+sub   term:<☣>            { 'biohazard'   }
+
+.say for 10!, 'help'!, ⚠☣!;
+```
+
+```
+3628800
+HELP!
+WARNING: BIOHAZARD!
+```
+----
 ## Huffmanized closures
 ----
 ```
@@ -284,23 +313,6 @@ say $half.^methods;     # FatRat Num Int new nude norm
 ----
 ![.HOW chain starting at Rat|1/2](images/HOW.svg)
 ----
-## Metamodel programming
-----
-<!-- examples/metamodel -->
-
-```
-# Equivalent to:  class MyShinyNewClass { has Int $.val; }
-
-my $name  := 'MyShinyNewClass';
-my $class := Metamodel::ClassHOW.new_type(:$name);
-my $attr  := Attribute.new(:name('$!val'), :type(Int),
-                           :package($class), :has_accessor);
-
-$class.HOW.add_parent($class, Any);
-$class.^add_attribute($attr);
-$class.^compose;
-```
-----
 *Three great virtues of a programmer:*
 
 *Laziness, Impatience, and Hubris.*
@@ -444,6 +456,25 @@ for ^4 {
 <!-- examples/fizzbuzz -->
 
 ```
+# Create a Supply that sends an incrementing value every .1 second
+my $every1  = Supply.interval(.1).map(* + 1);
+
+# Split off additional supplies tracking Fizz and Buzz counts
+my $every3  = $every1.grep(* %% 3).map:  { "$_ Fizz"     };
+my $every5  = $every1.grep(* %% 5).map:  { "$_ Buzz"     };
+my $every15 = $every1.grep(* %% 15).map: { "$_ FizzBuzz" };
+
+# Merge the supplies again, preferring Fizz/Buzz, and tap to output
+my $merged = Supply.merge($every15, $every5, $every3, $every1);
+$merged.map(*.Str.words).uniq(:as(*[0])).tap({.[*-1].say});
+
+# Wait for output of 1 .. 30
+sleep 3;
+```
+----
+<!-- XXXX: Shorter version -->
+
+```
 my $every1  = Supply.interval(1).map(* + 1);
 my $every3  = $every1.grep(* %% 3).map:  { "$_ Fizz"     };
 my $every5  = $every1.grep(* %% 5).map:  { "$_ Buzz"     };
@@ -454,8 +485,6 @@ $merged.map(*.Str.words).uniq(:as(*[0])).tap({.[*-1].say});
 
 sleep 30;
 ```
-----
-XXXX: convenience methods, composability, sanity, combinators and metacombinators
 ----
 ## Filesystem watchers
 ----
@@ -608,25 +637,9 @@ method str_escape($/) {
 [1, "foo", {"answer" => 42}]
 ```
 ----
-## Operators
+## Lexical slangs
 ----
-Unicode
-----
-Texas
-----
-Roll your own
-----
-## Miscellaneous
-----
-Portability
-----
-Community
-----
-Debugger
-----
-Hackable
-----
-XXXX: Rakudo/NQP/VM layering diagram
+XXXX: Operators, imports, v5
 ----
 *Give the user lots of tools to find and fix bugs.*
 ----
@@ -643,7 +656,44 @@ Undeclared routine:
 ----
 XXXX: Going deeper: .Str, .gist, .perl, .DUMP
 ----
-XXXX: NativeCall
+## Interactive debugger
+----
+XXXX: A few simple examples, including regex debugging
+----
+XXXX: Screenshot of non-CLI debugger frontend, if available
+----
+Make the easy things easy,
+
+*and the hard things possible.*
+----
+## NativeCall
+----
+XXXX: GTK?  SDL?  Crypto?
+----
+## Metamodel programming
+----
+<!-- examples/metamodel -->
+
+```
+# Equivalent to:  class MyShinyNewClass { has Int $.val; }
+
+my $name  := 'MyShinyNewClass';
+my $class := Metamodel::ClassHOW.new_type(:$name);
+my $attr  := Attribute.new(:name('$!val'), :type(Int),
+                           :package($class), :has_accessor);
+
+$class.HOW.add_parent($class, Any);
+$class.^add_attribute($attr);
+$class.^compose;
+```
+----
+## Metacombinators
+----
+XXXX: on() for Supplies/Channels
+----
+## Hack-friendly architecture
+----
+XXXX: Rakudo/NQP/VM layering diagram
 ----
 # Why Perl 6?
 ----
@@ -653,18 +703,17 @@ XXXX: NativeCall
 ----
 ## SO MANY REASONS
 ----
+# Questions?
 ----
-XXXX: EXTRAS
-----
-*TIMTOWTDI:*
 
-*There Is More Than One Way To Do It*
-
-<!-- XXXX: Syntax variations? -->
 ----
-Triangular numbers example
+## EXTRA SLIDES
 ----
-## Composable building blocks
+*The community's rewrite of Perl and of the community*
+----
+XXXX: #perl6, commit bits, -Ofun, hugs, p6weekly, 6guts
+----
+## Building blocks
 ----
 ```
 > .say for permutations(3)
@@ -683,6 +732,14 @@ Triangular numbers example
 2 3
 ```
 ----
+*TIMTOWTDI:*
+
+*There Is More Than One Way To Do It*
+
+<!-- XXXX: Syntax variations? -->
+----
+Triangular numbers example
+----
 XXXX: More builtins examples
 
 Str:  comb, samecase, samespace, trans, indent, unival
@@ -695,3 +752,4 @@ List: end, fmt, munch, pick, roll, rotate, rotor, kv
 ----
 XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
 XXXX: Draw out with graphviz or pic
+----
