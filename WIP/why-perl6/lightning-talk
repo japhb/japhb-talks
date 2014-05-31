@@ -442,8 +442,8 @@ start {
 # Stage 2: 4 worker/processing tasks
 for ^4 {
     start { loop { winner $source {
-	more * { $sink.send(process-job($_)) }
-	done * { $sink.close; last }
+        more * { $sink.send(process-job($_)) }
+        done * { $sink.close; last }
     } } }
 }
 
@@ -506,7 +506,50 @@ watch-tree($.root-dir, :skip< .git 3rdparty >)\
 ----
 ## Async I/O
 ----
-XXXX
+<!-- examples/async-get -->
+<!-- Adapted and refactored from jnthn's 'crappy_async_lwp' example:
+     https://gist.github.com/jnthn/11126125 -->
+
+```
+sub async-connect($host, $port, &after-connect, *@extra-args) {
+    my $p = Promise.new;
+    my $v = $p.vow;
+    IO::Socket::Async.connect($host, $port).then(-> $cr {
+        if $cr.status == Kept {
+            my $socket = $cr.result;
+            after-connect($socket, $v, |@extra-args);
+        }
+        else {
+            $v.break($cr.cause);
+        }
+    });
+    $p;
+}
+```
+----
+```
+sub async-get($socket, $v, $path) {
+    $socket.send("GET $path\r\n\r\n").then(-> $wr {
+        if $wr.status == Broken {
+            $v.break($wr.cause);
+            $socket.close;
+            return;
+        }
+
+        my @chunks;
+        $socket.chars_supply.tap(
+            { @chunks.push($_) },
+            done => {
+                $socket.close;
+                $v.keep(@chunks.join);
+            },
+            quit => { $v.break($_) }
+        );
+    });
+}
+
+say await async-connect('www.jnthn.net', 80, &async-get, '/');
+```
 ----
 *Communication can only happen when you agree on the language.*
 ----
@@ -639,7 +682,24 @@ method str_escape($/) {
 ----
 ## Lexical slangs
 ----
-XXXX: Operators, imports, v5
+<!-- examples/v5 -->
+<!-- Adapted from the 2013 Day 16 Perl 6 Advent Calendar entry:
+http://perl6advent.wordpress.com/2013/12/16/day-16-slangs/ -->
+
+<!-- XXXX: Needs output -->
+
+```
+use v6;
+my $thing = "123abc";
+say try $thing + 1;   # Perl 6: This will fail
+
+{
+    use v5;
+    say $thing + 1;   # Perl 5: This will print 124
+}
+
+say "Back to Perl { 2 * 3 }";
+```
 ----
 *Give the user lots of tools to find and fix bugs.*
 ----
@@ -654,7 +714,37 @@ Undeclared routine:
 ----
 ## Deep inspection
 ----
-XXXX: Going deeper: .Str, .gist, .perl, .DUMP
+```
+my $v = [ 42, { a => 5 } ];
+
+say $v.Str;
+say $v.gist;
+say $v.perl;
+```
+
+```
+42 a    5
+42 {"a" => 5}
+[42, {"a" => 5}]
+```
+----
+```
+say $v.DUMP;
+```
+
+```
+Array<1>(
+    :$!flattens(True),
+    :$!items(BOOTArray<3>(
+        ▶42,
+        ▶Hash<5>(
+            :$!descriptor((null)),
+            :$!storage(BOOTHash<6>(a => ▶5))
+        )
+    )),
+    :$!nextiter(▶Mu)
+)
+```
 ----
 ## Interactive debugger
 ----
@@ -668,7 +758,45 @@ Make the easy things easy,
 ----
 ## NativeCall
 ----
-XXXX: GTK?  SDL?  Crypto?
+<!-- Excerpted from the GTK::Simple implementation:
+https://github.com/perl6/gtk-simple/blob/master/lib/GTK/Simple.pm6 -->
+
+```
+class GTK::Simple::App does GTK::Simple::Widget
+                       does GTK::Simple::Container {
+    sub gtk_init(CArray[int32] $argc, CArray[CArray[Str]] $argv)
+        is native('libgtk-3.so.0') {*}
+
+    sub gtk_window_new(int32 $window_type)
+        is native('libgtk-3.so.0') returns GtkWidget {*}
+```
+
+```
+    method run() {
+        gtk_widget_show($!gtk_widget);
+        g_idle_add(
+            { GTK::Simple::Scheduler.process_queue },
+            OpaquePointer);
+        gtk_main();
+    }
+```
+----
+```
+    has $!deleted_supply;
+    #| Tap this supply to react to the window being closed
+    method deleted() {
+        $!deleted_supply //= do {
+            my $s = Supply.new;
+            g_signal_connect_wd($!gtk_widget, "delete-event",
+                -> $, $ {
+                    $s.more(self);
+                    CATCH { default { note $_; } }
+                },
+                OpaquePointer, 0);
+            $s
+        }
+    }
+```
 ----
 ## Metamodel programming
 ----
@@ -687,9 +815,25 @@ $class.^add_attribute($attr);
 $class.^compose;
 ```
 ----
-## Metacombinators
+## Supply metacombinator: on
 ----
-XXXX: on() for Supplies/Channels
+<!-- Actual implementation of Supply.merge in Rakudo -->
+
+```
+method merge(*@s) {
+    @s.unshift(self) if self.DEFINITE;  # add if instance method
+    return Supply unless +@s;           # nothing to be done
+    return @s[0]  if +@s == 1;          # nothing to be done
+
+    my $dones = 0;
+    on -> $res {
+        @s => {
+            more => -> \val { $res.more(val) },
+            done => { $res.done() if ++$dones == +@s }
+        },
+    }
+}
+```
 ----
 ## Hack-friendly architecture
 ----
