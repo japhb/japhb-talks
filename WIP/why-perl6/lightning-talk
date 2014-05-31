@@ -44,13 +44,15 @@ my $range = minmax @values;
 ----
 ## Extended operator selection
 ----
-Comparison | cmp before after                   | Generic
-           | leg lt le ge gt                    | Stringy
-           | <=> <  <= >=  >                    | Numeric
-           | eq eqv == === =:= ~~               | Equivalence
-Set        | ∈ ∉ ∋ ∌ ∪ ∩ ⊖ ⊂ ⊆                  | Unicode
-           | (elem) (cont) (|) (&) (^) (<) (<=) | Texas
-Misc       | min max minmax gcd lcm div %%      | Numeric
+Type       | Subtype       | Examples
+---------- | ------------- | -------------------------
+Comparison | *Generic*     | cmp before after
+           | *Stringy*     | leg lt le ge gt
+           | *Numeric*     | <=> <  <= >=  >
+           | *Equivalence* | eq eqv == === =:= ~~
+Set        | *Unicode*     | ∈ ∉ ∋ ∌ ∪ ∩ ⊖ ⊂ ⊆
+           | *Texas*       | (elem) (cont) (&) (^) (<)
+Misc       | *Numeric*     | min max gcd lcm div %%
 ----
 ## User defined operators
 ----
@@ -472,20 +474,6 @@ $merged.map(*.Str.words).uniq(:as(*[0])).tap({.[*-1].say});
 sleep 3;
 ```
 ----
-<!-- XXXX: Shorter version -->
-
-```
-my $every1  = Supply.interval(1).map(* + 1);
-my $every3  = $every1.grep(* %% 3).map:  { "$_ Fizz"     };
-my $every5  = $every1.grep(* %% 5).map:  { "$_ Buzz"     };
-my $every15 = $every1.grep(* %% 15).map: { "$_ FizzBuzz" };
-
-my $merged = Supply.merge($every15, $every5, $every3, $every1);
-$merged.map(*.Str.words).uniq(:as(*[0])).tap({.[*-1].say});
-
-sleep 30;
-```
-----
 ## Filesystem watchers
 ----
 <!-- From the code that builds this very presentation:
@@ -539,19 +527,17 @@ sub async-get($socket, $v, $path) {
         my @chunks;
         $socket.chars_supply.tap(
             { @chunks.push($_) },
-            done => {
-                $socket.close;
-                $v.keep(@chunks.join);
-            },
+            done => { $socket.close; $v.keep(@chunks.join) },
             quit => { $v.break($_) }
         );
     });
 }
-
 say await async-connect('www.jnthn.net', 80, &async-get, '/');
 ```
 ----
-*Communication can only happen when you agree on the language.*
+*Communication can only happen*
+
+*when you agree on the language.*
 ----
 ## Grammars
 ----
@@ -690,12 +676,14 @@ http://perl6advent.wordpress.com/2013/12/16/day-16-slangs/ -->
 
 ```
 use v6;
-my $thing = "123abc";
-say try $thing + 1;   # Perl 6: This will fail
+my $val = 123;
+$val ~= 'abc';       # Perl 6: Concatenation is '~'
+say try $val + 1;    # Perl 6: This will fail
 
 {
     use v5;
-    say $thing + 1;   # Perl 5: This will print 124
+    $val .= 'xyz';   # Perl 5: Concatenation is '.'
+    say $thing + 1;  # Perl 5: This will print 124
 }
 
 say "Back to Perl { 2 * 3 }";
@@ -769,9 +757,7 @@ class GTK::Simple::App does GTK::Simple::Widget
 
     sub gtk_window_new(int32 $window_type)
         is native('libgtk-3.so.0') returns GtkWidget {*}
-```
 
-```
     method run() {
         gtk_widget_show($!gtk_widget);
         g_idle_add(
@@ -815,7 +801,7 @@ $class.^add_attribute($attr);
 $class.^compose;
 ```
 ----
-## Supply metacombinator: on
+## Metacombinators
 ----
 <!-- Actual implementation of Supply.merge in Rakudo -->
 
@@ -841,17 +827,17 @@ XXXX: Rakudo/NQP/VM layering diagram
 ----
 # Why Perl 6?
 ----
-## SO
+### SO
 ----
-## SO MANY
+## MANY
 ----
-## SO MANY REASONS
+# REASONS
 ----
 # Questions?
 ----
 
 ----
-## EXTRA SLIDES
+## EXTRA SLIDES AND IDEAS
 ----
 *The community's rewrite of Perl and of the community*
 ----

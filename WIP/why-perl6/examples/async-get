@@ -27,10 +27,7 @@ sub async-get($socket, $v, $path) {
         my @chunks;
         $socket.chars_supply.tap(
             { @chunks.push($_) },
-            done => {
-                $socket.close;
-                $v.keep(@chunks.join);
-            },
+            done => { $socket.close; $v.keep(@chunks.join) },
             quit => { $v.break($_) }
         );
     });
