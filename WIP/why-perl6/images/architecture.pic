@@ -1,18 +1,25 @@
 .PS
+
+define white_text { "<tspan font-weight=\"bold\" fill=\"white\">" + $1 + "</tspan>" }
+
 define perl6_box { [
-    box $1 shaded "orange" outlined "darkorange";
+    box white_text($1) shaded "orange" outlined "darkorange" wid 1.0;
 ] }
 
 define nqp_box { [
-    box $1 shaded "green" outlined "darkgreen";
+    box white_text($1) shaded "green" outlined "darkgreen" wid 1.0;
+] }
+
+define nqp_box_big { [
+    box white_text($1) white_text($2) shaded "green" outlined "darkgreen" wid 1.0 ht .75;
 ] }
 
 define spec_box { [
-    box $1 shaded "red" outlined "darkred";
+    box white_text($1) shaded "darkred" outlined "darkred" wid 1.0;
 ] }
 
 define vm_box { [
-    box $1 colored "black";
+    box white_text($1) colored "black" wid 1.0;
 ] }
 
 define compiler { [
@@ -21,8 +28,8 @@ define compiler { [
     nqp_box("Grammar");
     nqp_box("Actions");
     nqp_box("World");
-    nqp_box("Meta" "Objects");
-    nqp_box("CORE" "Setting");
+    nqp_box_big("Meta", "Objects");
+    nqp_box_big("CORE", "Setting");
 ] }
 
 define vm_ast { [
@@ -35,7 +42,7 @@ define vm_ast { [
 define keyitem { [
     right;
     box shaded $1 outlined $2 wid 0.2 ht 0.2;
-    box $3 invis ht 0.2;
+    box $3 invis wid 1.0 ht 0.2;
 ] }
 
 
@@ -81,7 +88,7 @@ Key: [
     right;
     keyitem("green", "darkgreen", "Perl 6");
     keyitem("orange", "darkorange", "NQP");
-    keyitem("red", "darkred", "VM Specific Code");
+    keyitem("darkred", "darkred", "VM Specific");
     keyitem("black", "black", "VM");
 ]
 .PE
