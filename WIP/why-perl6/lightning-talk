@@ -672,21 +672,25 @@ method str_escape($/) {
 <!-- Adapted from the 2013 Day 16 Perl 6 Advent Calendar entry:
 http://perl6advent.wordpress.com/2013/12/16/day-16-slangs/ -->
 
-<!-- XXXX: Needs output -->
-
 ```
 use v6;
 my $val = 123;
-$val ~= 'abc';       # Perl 6: Concatenation is '~'
-say try $val + 1;    # Perl 6: This will fail
+$val ~= 'abc';      # Perl 6: Concatenation is '~'
+say try $val + 1;   # Perl 6: Invalid, try returns Nil
 
 {
     use v5;
-    $val .= 'xyz';   # Perl 5: Concatenation is '.'
-    say $thing + 1;  # Perl 5: This will print 124
+    $val .= 'xyz';  # Perl 5: Concatenation is '.'
+    say($val + 1);  # Perl 5: Valid, evaluates to 124
 }
 
 say "Back to Perl { 2 * 3 }";
+```
+
+```
+Nil
+124
+Back to Perl 6
 ```
 ----
 *Give the user lots of tools to find and fix bugs.*
