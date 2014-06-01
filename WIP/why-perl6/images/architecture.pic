@@ -1,0 +1,87 @@
+.PS
+define perl6_box { [
+    box $1 shaded "orange" outlined "darkorange";
+] }
+
+define nqp_box { [
+    box $1 shaded "green" outlined "darkgreen";
+] }
+
+define spec_box { [
+    box $1 shaded "red" outlined "darkred";
+] }
+
+define vm_box { [
+    box $1 colored "black";
+] }
+
+define compiler { [
+    down;
+    box invis $1;
+    nqp_box("Grammar");
+    nqp_box("Actions");
+    nqp_box("World");
+    nqp_box("Meta" "Objects");
+    nqp_box("CORE" "Setting");
+] }
+
+define vm_ast { [
+    down;
+    spec_box($1);
+    move;
+    vm_box($2);
+] }
+
+define keyitem { [
+    right;
+    box shaded $1 outlined $2 wid 0.2 ht 0.2;
+    box $3 invis ht 0.2;
+] }
+
+
+down;
+
+TOP: [
+    right;
+    Rakudo: compiler("Rakudo");
+    arrow "" "Uses";
+    NQP: compiler("NQP (Bootstrapped)");
+]
+
+move;
+
+Abstraction: [
+    right;
+    box invis "VM" "Abstraction";
+    move;
+    nqp_box("QAST");
+    move;
+    spec_box("6model");
+    move;
+    spec_box("nqp::ops");
+]
+
+move;
+
+VMs: [
+    right;
+    box invis "VM" "Specific";
+    move;
+    vm_ast("PIRT", "Parrot");
+    move;
+    vm_ast("JAST", "JVM");
+    move;
+    vm_ast("MAST", "MoarVM");
+]
+
+move;
+
+Key: [
+    box;
+    right;
+    keyitem("green", "darkgreen", "Perl 6");
+    keyitem("orange", "darkorange", "NQP");
+    keyitem("red", "darkred", "VM Specific Code");
+    keyitem("black", "black", "VM");
+]
+.PE
