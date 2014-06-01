@@ -823,7 +823,7 @@ method merge(*@s) {
 ----
 ## Hack-friendly architecture
 ----
-XXXX: Rakudo/NQP/VM layering diagram
+![Rakudo architecture diagram](images/architecture.svg)
 ----
 # Why Perl 6?
 ----
