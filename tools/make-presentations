@@ -58,9 +58,17 @@ class DeckMaker {
         $!log.more: "Watching $.root-dir for changes";
     }
 
+    method gen-dependencies() {
+        my @deps = $.decks.list.map: *<deps>.flat;
+        my @pics = @deps.grep(*<type> eq 'PIC').map(*<file>).uniq;
+        convert-pic-to-svg($_) for @pics;
+        $!log.more: "Converted {+@pics} PIC file{_s(+@pics)} to SVG";
+    }
+
     method gen-presentations() {
+        self.gen-dependencies;
         self.gen-presentation($_) for $.decks.list;
-	refresh-browser(.<title>) for $.decks.list;
+        refresh-browser(.<title>) for $.decks.list;
         self.gen-index;
         $!log.more: "Generated {+$.decks} presentation{_s(+$.decks)} and updated index";
     }
@@ -137,4 +145,11 @@ sub runnable($program) {
 sub refresh-browser($regex) {
     run « xdotool search --name "$regex" windowactivate --sync key shift+F5 »
         if %*ENV<DISPLAY> && runnable('xdotool');
+}
+
+#= Convert a .pic file to .svg
+sub convert-pic-to-svg($pic-name) {
+    return unless runnable('dpic');
+    my $svg-name = $pic-name.subst(/'.pic'$/, '.svg');
+    shell qq{dpic -v "$pic-name" > "$svg-name"};
 }
