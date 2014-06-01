@@ -3,6 +3,11 @@
   "file"   : "lightning-talk",
   "title"  : "Why Perl 6?",
   "author" : "Geoffrey Broadwell (japhb)",
-  "desc"   : "A talk for those wondering if they should try Perl 6"
+  "desc"   : "A talk for those wondering if they should try Perl 6",
+  "deps"   : [
+   { "type": "SVG", "file": "images/type-graph-Numeric.svg" },
+   { "type": "PIC", "file": "images/HOW.pic" },
+   { "type": "PIC", "file": "images/architecture.pic" }
+  ]
  }
 ]
