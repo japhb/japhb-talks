@@ -1,0 +1,14 @@
+# Equivalent to:  class MyShinyNewClass { has Int $.val; }
+
+my $name  := 'MyShinyNewClass';
+my $class := Metamodel::ClassHOW.new_type(:$name);
+my $attr  := Attribute.new(:name('$!val'), :type(Int),
+                           :package($class), :has_accessor);
+
+$class.HOW.add_parent($class, Any);
+$class.^add_attribute($attr);
+$class.^compose;
+
+# Test it
+my  $shiny = $class.new(:val(20));
+say $shiny.DUMP;

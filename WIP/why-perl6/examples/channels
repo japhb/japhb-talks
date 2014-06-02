@@ -1,0 +1,26 @@
+my @jobs = ^10;
+
+sub prepare-job($id)  { $id x $id }
+sub process-job($job) { [+] $job.comb }
+
+
+# Concurrent blocking queues between stages
+my $source = Channel.new;
+my $sink   = Channel.new;
+
+# Stage 1: 1 source/preparation task
+start {
+    @jobs.map: { $source.send(prepare-job($_)) };
+    $source.close;
+}
+
+# Stage 2: 4 worker/processing tasks
+for ^4 {
+    start { loop { winner $source {
+	more * { $sink.send(process-job($_)) }
+	done * { $sink.close; last }
+    } } }
+}
+
+# Stage 3: 1 sink/output task (in main thread)
+.say for $sink.list;

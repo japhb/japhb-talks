@@ -1,0 +1,6 @@
+my $v = [ 42, { a => 5 } ];
+
+say $v.Str;
+say $v.gist;
+say $v.perl;
+say $v.DUMP;

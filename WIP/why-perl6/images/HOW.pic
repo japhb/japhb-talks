@@ -1,0 +1,25 @@
+.PS
+scale  = 1;
+
+Diagram: [
+boxwid = 3;
+boxht  = .5;
+boxrad = .15;
+
+down;
+box "Rat|1/2";
+arrow " .HOW" ljust;
+box "Perl6::MetaModel::ClassHOW";
+arrow " .HOW" ljust;
+box "NQP::ClassHOW";
+arrow " .HOW" ljust;
+box "KnowHOW";
+line .25 " .HOW" ljust from last box .s;
+arc cw;
+arc cw;
+arrow .25;
+]
+
+linethick = 0;
+move from Diagram.sw-(6,6)/72*scale to Diagram.ne+(6,6)/72*scale
+.PE

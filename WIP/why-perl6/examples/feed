@@ -1,0 +1,26 @@
+my $file = $*PROGRAM_NAME.path.directory ~ '/markup.txt';
+
+$file.IO.slurp.lines
+    ==> parse-lines()
+    ==> grep(*.is-header)
+    ==> map({ '  ' x .depth ~ .text })
+    ==> my @outline;
+.say for @outline;
+
+
+class ParsedLine {
+    has Bool $.is-header;
+    has Int  $.depth;
+    has Str  $.text;
+}
+ 
+sub parse-lines(*@lines) {
+    gather for @lines {
+        when /^ ('#'+) \s* (.*) $/ {
+            take ParsedLine.new(:text(~$1), :depth($0.chars), :is-header);
+        }
+        default {
+            take ParsedLine.new(:text($_), :depth(0), :!is-header);
+        }
+    }
+}

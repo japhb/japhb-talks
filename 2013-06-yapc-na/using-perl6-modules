@@ -1,0 +1,444 @@
+# Using and Installing Perl 6 Modules
+
+Geoffrey Broadwell (japhb)
+
+----
+
+# Part I: Theory
+
+----
+
+[S11 (Synopsis/Spec 11)](http://perlcabal.org/syn/S11.html)
+describes a greatly generalized system
+for selecting and loading modules in Perl 6.
+
+As with most redesigns, it requires some fleshing out
+by the implementors.
+
+----
+
+S11:
+
+* Must be able to support full Unicode module names even on a filesystem that does not support Unicode filenames
+* Must hide filesystem length, case sensitivity, or disallowed character limitations
+* Must handle multiple versions of modules installed *and in memory* at the same time
+* Must handle multiple forks of a module, and different naming and numbering authorities (possibly in conflict)
+
+----
+
+S11:
+
+* Must allow full smart match (including a custom collection of version number matching schemes) when choosing a particular auth/version/file to load
+* Must allow modules of one version to emulate other versions, or to exclude other versions (of possibly other modules) from being loaded at the same time
+* Must choose the *best* match to load, not just first found, highest numbered, etc.
+
+----
+
+S11 Examples:
+
+```markdown
+use Dog:ver(v1.2.1..v1.2.3);
+use Dog:ver(v1.2.1..^v1.3);
+use Dog:ver(v1.2.1..*);
+
+use Dog:auth(/:i jrandom/):ver(v1.2.1 | v1.3.4);
+use Dog:auth({ .substr(0,5) eq 'cpan:'}):ver(Any);
+
+use Perl:ver<6.*>;
+use Perl:ver<6.2.3+>;
+use Perl:auth<cpan:TPF>;
+
+use Whiteness:from<perl5>:name<Acme::Bleach>:auth<cpan:DCONWAY>:ver<1.12>;
+use Whiteness:from<perl5 Acme::Bleach cpan:DCONWAY 1.12>;  # same thing
+```
+
+----
+
+S11 Examples:
+
+```markdown
+class Dog:auth<http://www.some.com/~jrandom>:ver<1.2.1>;
+class Dog:auth<mailto:jrandom@some.com>:ver<1.2.1>;
+class Dog:auth<cpan:JRANDOM>:ver<1.2.1>;
+class Dog:<cpan:JRANDOM 1.2.1>
+
+class Pooch:name<Dog>:auth<cpan:JRANDOM>:ver<1.2.1>
+class Pooch:<Dog cpan:JRANDOM 1.2.1>
+
+class Dog:<cpan:JRANDOM 1.2.1>
+    emulates Dog:auth(DCONWAY|JCONWAY|TCONWAY):ver<1.0+>
+    excludes Fox:<http://oreillymedia.com 3.14159>
+    emulates Wolf:from<C# 0.8..^1.0>;
+```
+
+----
+
+S11 also describes a new factoring for loading primitives:
+
+```markdown
+use Sense <common @horse>;
+
+# same as:
+need Sense;
+import Sense <common @horse>;
+```
+
+----
+
+`need` is a `BEGIN` time load operation that can be
+roughly thought of as Perl 5's `use Module ()`, except that
+it can specify multiple modules at once:
+
+```markdown
+need Foo, Bar, Baz;
+```
+
+----
+
+The definition of `need` starts off with a further factoring
+of the loading process:
+
+```markdown
+load_module(find_module_defining(...))
+```
+
+It is explicit that finding and loading a module are separate
+operations that must be callable, but beyond this level of detail,
+S11 allows these to be opaque operations.
+
+----
+
+`import` is also a `BEGIN` time operation, now desugared
+in terms of the export system, rather than calling a method
+to do the work as in Perl 5.
+
+----
+
+`require` still exists as well, and still does most of its work at run time,
+though since lexical pads cannot be changed at run time, it must stub the
+imports into the lexical pad at compile time:
+
+```markdown
+require Sense <common @horse>;
+require "/home/non/Sense.pm" <common @horse>;
+require Sense:file("/home/non/Sense.pm") <common @horse>;
+my $sense = "Sense";
+require ::($sense) <common @horse>;
+```
+
+----
+
+Implementors:
+
+* How *exactly* are we going to implement all that?
+* What does this mean for multiple files in the same distro?
+* Do we really want to be specifying a *module* to load or do we want to specify a *compilation unit*?
+* How do the concepts of `perl`, `vendor`, and `site` trees mix with authority-conflict rules?
+* How do `@*INC`, `%*CUSTOM_LIB`, `%ENV<PERL6LIB>`, and `%ENV<RAKUDOLIB>` interact?
+* Do they even all follow the same "best match" rules?
+* How do we do smart matching on uninstalled files?
+
+----
+
+Yesterday:
+
+* `need` (and thus `use`) are defined in terms of compilation units, not modules.
+* `@*INC` always wins over `%*CUSTOM_LIB`.
+* Each tree root has a cache/config file of comp unit (with auth/ver) --> file.
+* These files could be filled in either as a caching operation (as pre-compilation is planned to be) or by the module installer.
+* If no cache/config file is found, or no entry is found for a requested comp unit, the compiler will fall back to a standard set of rules for finding the file.
+
+----
+
+We expect to add to this list as the conference goes on ... ☺
+
+----
+
+# Part II: Practice
+
+----
+
+Right now, there aren't any Perl 6 compilers  
+with direct access to CPAN.
+
+----
+
+We're working on that on several fronts:
+
+  * Embedding `perl5` in Perl 6 compilers
+  * Teaching Perl 6 compilers to understand Perl 5 code
+  * Teaching CPAN about Perl 6 modules
+  * Building a native Perl 6 ecosystem
+  * Creating a "batteries included" Perl 6 distro
+
+----
+
+We're working on that on several fronts:
+
+  * Embedding `perl5` in Perl 6 compilers  
+    <span class="secondary">(Matthew Wilson's MoarVM talk Monday at 3:05 pm)</span>
+  * Teaching Perl 6 compilers to understand Perl 5 code  
+    <span class="secondary">(Tobias Leich's v5 talk Tuesday at 9:00 am)</span>
+  * *Teaching CPAN about Perl 6 modules <span class="secondary">(META6.json)</span>*
+  * *Building a native Perl 6 ecosystem <span class="secondary">(`panda`)</span>*
+  * *Creating a "batteries included" Perl 6 distro <span class="secondary">(Rakudo Star)</span>*
+
+----
+
+# `META6.json`
+
+----
+
+The newly-decided name for Perl 6 module distro meta-information
+that allows CPAN to handle them appropriately.
+
+In particular, CPAN will recognize that a tarball containing this
+file should not be indexed using the Perl 5 rules, should not go
+to (Perl 5) cpantesters, and should be moved to a `perl6/` directory
+in the uploader's file space.
+
+----
+
+# `panda`
+
+----
+
+A native Perl 6 tool for finding and installing Perl 6 modules
+
+----
+
+On a bare Rakudo, first clone and bootstrap:
+
+```bash
+# Make sure Rakudo's install/bin and install/lib/.../site/bin
+# are in your path!
+ 
+git clone --recursive git://github.com/tadzik/panda.git
+cd panda
+perl6 ./bootstrap.pl
+```
+
+(Done automatically by Rakudo Star.)
+
+----
+
+Listing available modules:
+
+```bash
+# List all Perl 6 modules known to panda, including
+# installed or installed-as-dependency state
+panda list
+
+# Include extra info
+panda --verbose list
+
+# List only modules currently installed
+panda --installed list
+```
+
+----
+
+After installing a few ...
+
+```bash
+$ panda --installed --verbose list
+File::Tools        [installed]   *  ?  /home/geoff/git/panda/ext/File__Tools
+Grammar::Debugger  [installed]   *  ?  git://github.com/jnthn/grammar-debugger.git
+JSON::Tiny         [installed]   *  ?  /home/geoff/git/panda/ext/JSON__Tiny
+Term::ANSIColor    [installed]   *  ?  git://github.com/tadzik/perl6-Term-ANSIColor.git
+URI                -dependency-  *  ?  git://github.com/ihrd/uri.git
+p6doc              [installed]   *  ?  git://github.com/perl6/doc.git
+panda              [installed]   *  ?  /home/geoff/git/panda
+```
+
+----
+
+If you prefer browsing the list in your web browser,  
+it can also be found at
+[modules.perl6.org](http://modules.perl6.org/)
+
+----
+
+Searching for a module:
+
+```bash
+# Search name and description case-insensitively
+panda search <string>
+
+# "I need colorized terminal output ..."
+$ panda search term
+Term::ANSIColor     *   Colorize terminal output
+Term::ProgressBar   *   Perl 6 implementation of Progress Bar.
+```
+
+----
+
+Getting more info:
+
+```bash
+# Show info for a particular module
+panda info <module>
+
+# "What does p6doc depend on?"
+$ panda info p6doc
+PROJECT LIST:
+"p6doc" => "*"
+"Depends on:" => "URI"
+"State" => "installed"
+"Source-url" => "git://github.com/perl6/doc.git"
+"Description" => "Perl 6 documentation (tools and docs)"
+INSTALLED VERSION:
+"depends" => ["URI"]
+"description" => "Perl 6 documentation (tools and docs)"
+"name" => "p6doc"
+"source-url" => "git://github.com/perl6/doc.git"
+"version" => "*"
+```
+
+----
+
+Installing modules:
+
+```bash
+# Install a module and all its dependencies
+panda install <module>
+
+$ panda install Term::ANSIColor
+==> Fetching Term::ANSIColor
+==> Building Term::ANSIColor
+Compiling lib/Term/ANSIColor.pm
+==> Testing Term::ANSIColor
+t/00-load.t .. ok   
+All tests successful.
+Files=1, Tests=1,  1 wallclock secs ( 0.04 usr  0.00 sys +  1.18 cusr  0.13 csys =  1.35 CPU)
+Result: PASS
+==> Installing Term::ANSIColor
+Copying blib/lib/Term/ANSIColor.pm to /home/geoff/git/rakudo/install/lib/parrot/5.2.0-devel/languages/perl6/site/lib/Term/ANSIColor.pm
+Copying blib/lib/Term/ANSIColor.pir to /home/geoff/git/rakudo/install/lib/parrot/5.2.0-devel/languages/perl6/site/lib/Term/ANSIColor.pir
+==> Successfully installed Term::ANSIColor
+```
+
+----
+
+If you install several modules at once, they will be built in dependency order.
+
+```bash
+# Actually installs URI before LWP::Simple
+panda install LWP::Simple URI
+```
+
+----
+
+# Rakudo Star
+
+----
+
+Rakudo Perl 6 combined with a selection of Perl 6 modules,
+plus `panda` to get more.
+
+Only released when there have been no major regressions
+since the previous Rakudo Star release, and all tests pass.
+
+----
+
+Installing Rakudo Star:
+
+```
+# Get latest .tar.gz from http://rakudo.org/downloads/star/
+export LATEST=2013.05
+curl -O http://rakudo.org/downloads/star/rakudo-star-$LATEST.tar.gz
+
+# Extract
+tar xzvf rakudo-star-$LATEST.tar.gz
+cd rakudo-star-$LATEST
+
+# Build and install into ./install/ subdir
+perl Configure.pl --gen-parrot
+make
+make install
+
+# Add to path
+export PATH=$(/bin/pwd)/install/bin:$PATH
+```
+
+----
+
+What's there? (part 1)
+
+```bash
+# Algorithms
+perl6-digest-md5, Perl6-MIME-Base64, Math-Model, Math-RungeKutta
+
+# Databases
+DBIish
+
+# Data formats
+json, xml-writer
+
+# Development
+grammar-debugger, rakudo-debugger, Grammar-Profiler-Simple, test-mock
+
+# Documentation
+doc, Pod-To-HTML
+
+# Images
+svg, svg-plot
+```
+
+----
+
+What's there? (part 2)
+
+```bash
+# Module tools
+panda, ufo
+
+# Native libraries
+zavolaj
+
+# Text
+Template-Mojo, perl6-Term-ANSIColor
+
+# Utilities
+perl6-File-Tools
+
+# Web/Internet
+perl6-http-easy, perl6-http-status, perl6-lwp-simple, perl6-psgi,
+Bailador, jsonrpc, uri
+```
+
+----
+
+Want to get all this but prefer starting from a bare Rakudo,
+or just want the very latest versions?
+
+```bash
+# Give me all the (Star) things!
+panda install Task::Star
+```
+
+----
+
+## Help Wanted!
+
+Rakudo Star was only ever intended to be a *first* distro,
+not the best or only.
+
+In its current form, it is hard to scale module curation.
+
+Think you can do better?  *Please do.*
+
+----
+
+## Suggestions?  Problems?
+
+Come visit us on IRC:  
+`irc.freenode.net #perl6`
+
+----
+
+# Questions?
+
+----
+
+# Thank you!

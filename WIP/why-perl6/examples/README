@@ -1,0 +1,10 @@
+These are (usually extended versions of) the examples in the why-perl6 talk.
+You can run any example from within the why-perl6 directory like so:
+
+    [.../why-perl6/]$ perl6 examples/feed
+      Chapter 1
+        Section A
+          Subsection A1
+        Section B
+          Subsection B1
+          Subsection B2

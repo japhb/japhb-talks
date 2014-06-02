@@ -1,0 +1,8 @@
+my  $half = 1/2;
+say $half.WHAT;
+say $half.WHICH;
+say $half.WHERE;
+say $half.HOW;
+say $half.^mro;
+say $half.^attributes;
+say $half.^methods;

@@ -1,0 +1,6 @@
+multi postfix:<!>(Int $i) { [*] 1..$i     }
+multi postfix:<!>(Str $s) { $s.uc ~ '!'   }
+multi prefix:<⚠>(Str $s)  { "WARNING: $s" }
+sub   term:<☣>            { 'biohazard'   }
+
+.say for 10!, 'help'!, ⚠☣!;

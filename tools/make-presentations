@@ -1,0 +1,155 @@
+#!/usr/bin/env perl6
+
+use v6;
+BEGIN die "Requires concurrency support; try rakudo-moar or rakudo-jvm.\n"
+    if ::('Thread') ~~ Failure;
+
+use JSON::Tiny;
+use File::Find;
+
+class DeckMaker {
+    has $.log          = Supply.new;
+    has $.root-dir     = script-dir().parent;
+    has $.reveal-dir   = "{$!root-dir.relative}/3rdparty/reveal.js";
+    has $.template-dir = $!root-dir.child('templates');
+    has $.decks-json-path;
+    has $.decks;
+    has %.templates;
+
+    method init() {
+        self.load-decks;
+        self.load-templates;
+    }
+
+    method load-decks() {
+        $!decks := from-json(slurp $.decks-json-path);
+        $!log.more: "Loaded {+$.decks} deck definition{_s(+$.decks)} from $.decks-json-path";
+    }
+
+    method load-templates() {
+        %.templates<deck>  := slurp "$.template-dir/deck.html";
+        %.templates<index> := slurp "$.template-dir/index.html";
+        $!log.more: "Loaded {+%.templates} template{_s(+%.templates)} from $.template-dir";
+    }
+
+    method watch-all() {
+        my $tmpl-dir  = $.template-dir;
+        my $json-path = $.decks-json-path;
+
+        my sub interesting-path($path) {
+            my $basename = $path.path.basename;
+            return False if $basename ~~ / '.html' $/
+                         && $path !~~ /^ $tmpl-dir /;
+            return False if $basename ~~ /^ [ '.#' .* | '#' .* '#' ] $/;
+            return True;
+        }
+
+        $!log.more: "Searching $.root-dir for watch targets";
+        watch-tree($.root-dir, :skip< .git 3rdparty >)\
+            .map(*.path)\
+            .uniq(:expires(1))\
+            .grep({ interesting-path($_) })\
+            .act(-> $path {
+                $!log.more: "Noticed change at $path";
+                self.load-templates if $path ~~ /^ $tmpl-dir /;
+                self.load-decks     if $path ~~ / $json-path /;
+                self.gen-presentations;
+            });
+        $!log.more: "Watching $.root-dir for changes";
+    }
+
+    method gen-dependencies() {
+        my @deps = $.decks.list.map: *<deps>.flat;
+        my @pics = @deps.grep(*<type> eq 'PIC').map(*<file>).uniq;
+        convert-pic-to-svg($_) for @pics;
+        $!log.more: "Converted {+@pics} PIC file{_s(+@pics)} to SVG";
+    }
+
+    method gen-presentations() {
+        self.gen-dependencies;
+        self.gen-presentation($_) for $.decks.list;
+        refresh-browser(.<title>) for $.decks.list;
+        self.gen-index;
+        $!log.more: "Generated {+$.decks} presentation{_s(+$.decks)} and updated index";
+    }
+
+    method gen-presentation($pres) {
+        my sub put-in-section($TEXT) {
+            qq[\n    <section data-markdown>\n        <script type="text/template">\n$TEXT\n        </script>\n    </section>\n];
+        }
+        my $divider      = /\n+ '----' \n+/;
+        $pres<body>      = slurp($pres<file>).split($divider)\
+                                             .map(&put-in-section).join;
+        $pres<html-file> = $pres<file> ~ '.html';
+        $pres<reveal>    = $.reveal-dir;
+
+        spurt $pres<html-file>, %.templates<deck>.subst(/'%' (@($pres.keys)) '%'/,
+                                                        -> $/ { $pres{~$0} }, :g);
+    }
+
+    method gen-index() {
+        my $dir   = cwd.path.basename;
+        my @items = $.decks.list.map:
+            {"    <li><a href=\"{$_<html-file>}\">{$_<title>}</a></li>\n"};
+
+        spurt 'index.html', %.templates<index>.subst('%dir%', $dir)\
+                                              .subst('%items%', @items.join);
+    }
+}
+
+
+#= Merge template with Markdown slide files to create presentations
+multi MAIN($decks-json-path = 'decks.json', Bool :$watch) {
+    my $maker = DeckMaker.new(:$decks-json-path);
+    $maker.log.tap(&say);
+    $maker.init;
+
+    $maker.gen-presentations;
+    if $watch {
+        $maker.watch-all;
+        sleep;
+    }
+}
+
+#= Find the absolute path to the directory containing $*PROGRAM_NAME
+sub script-dir() {
+    my $cwd = $*CWD;
+    LEAVE chdir $cwd;
+
+    chdir $*PROGRAM_NAME.path.directory;
+    cwd();
+}
+
+#= Assist in declining English number phrases
+sub _s($number, $plural = 's', $singular = '') {
+    $number == 1 ?? $singular !! $plural;
+}
+
+#= Watch a tree of directories, rather than just a single directory
+sub watch-tree($dir, :@skip) {
+    my $skip := rx{[^ | '/'] @skip ['/' | $]};
+    my @dirs  = @skip ?? find(:$dir, :type<dir>).grep({ .Str !~~ $skip })
+                      !! find(:$dir, :type<dir>);
+    @dirs.push: $dir;
+
+    Supply.merge(@dirs.map: *.watch);
+}
+
+#= Check if a program exists in the path
+sub runnable($program) {
+    state %cache;
+    %cache{$program} //= so shell "which '$program' >/dev/null 2>&1";
+}
+
+#= Refresh matching web browser
+sub refresh-browser($regex) {
+    run « xdotool search --name "$regex" windowactivate --sync key shift+F5 »
+        if %*ENV<DISPLAY> && runnable('xdotool');
+}
+
+#= Convert a .pic file to .svg
+sub convert-pic-to-svg($pic-name) {
+    return unless runnable('dpic');
+    my $svg-name = $pic-name.subst(/'.pic'$/, '.svg');
+    shell qq{dpic -v "$pic-name" > "$svg-name"};
+}

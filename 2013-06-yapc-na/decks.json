@@ -1,0 +1,14 @@
+[
+ {
+  "file"   : "need-for-speed",
+  "title"  : "The Need for Speed: Benchmarking Perl 6",
+  "author" : "Geoffrey Broadwell (japhb)",
+  "desc"   : "A talk about benchmarking the Perl family of languages: Perl 5, NQP, and Perl 6"
+ },
+ {
+  "file"   : "using-perl6-modules",
+  "title"  : "Installing and Using Perl 6 Modules",
+  "author" : "Geoffrey Broadwell (japhb)",
+  "desc"   : "A talk about the Perl 6 ecosystem, and how to use it for fun and profit"
+ }
+]

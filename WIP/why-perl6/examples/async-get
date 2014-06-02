@@ -1,0 +1,36 @@
+# Adapted and refactored from jnthn's 'crappy_async_lwp' example:
+#     https://gist.github.com/jnthn/11126125
+
+sub async-connect($host, $port, &after-connect, *@extra-args) {
+    my $p = Promise.new;
+    my $v = $p.vow;
+    IO::Socket::Async.connect($host, $port).then(-> $cr {
+        if $cr.status == Kept {
+            my $socket = $cr.result;
+            after-connect($socket, $v, |@extra-args);
+        }
+        else {
+            $v.break($cr.cause);
+        }
+    });
+    $p;
+}
+
+sub async-get($socket, $v, $path) {
+    $socket.send("GET $path\r\n\r\n").then(-> $wr {
+        if $wr.status == Broken {
+            $v.break($wr.cause);
+            $socket.close;
+            return;
+        }
+
+        my @chunks;
+        $socket.chars_supply.tap(
+            { @chunks.push($_) },
+            done => { $socket.close; $v.keep(@chunks.join) },
+            quit => { $v.break($_) }
+        );
+    });
+}
+
+say await async-connect('www.jnthn.net', 80, &async-get, '/');

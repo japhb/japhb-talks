@@ -1,0 +1,49 @@
+# Test data
+my @strings = < foo bar baz 7 144 20 1 >;
+my @numbers = 7, 144, 20, 1;
+
+class Planet {
+    has $.name;
+    has $.mass;
+
+    method gist { "$.name\t$.mass" }
+}
+
+my %planet-masses =
+    Mercury => 3.3022e23,
+    Venus   => 4.8685e24,
+    Earth   => 5.9736e24,
+    Mars    => 6.4185e23,
+    Jupiter => 1.8986e27,
+    Saturn  => 5.6846e26,
+    Uranus  => 8.6810e25,
+    Neptune => 1.0243e25;
+
+my @planets = %planet-masses.map:
+    { Planet.new(:name(.key), :mass(.value)) };
+
+my @table-rows =
+    #   DISTRICT  SALESMAN    VOLUME  DOLLARS
+    [<  Central   Farnsworth  178     2191.18  >],
+    [<  Central   Dickens     212     2609.72  >],
+    [<  Northern  Finklebaum  156     1920.36  >],
+    [<  Southern  Baggins     197     2425.07  >],
+    [<  Southern  Cantor      156     1920.36  >];
+
+
+# Type-sensitive stable default sort
+say "--> Ascending default on strings";
+.say for @strings.sort;
+say "\n--> Descending default on numbers";
+.say for @numbers.sort.reverse;
+
+# Sort according to an extracted key
+say "\n--> Ascending by mass (extracted key)";
+.say for @planets.sort(*.mass);
+
+# Sort using a custom comparator:
+#    ascending numeric on column 4,
+#   descending stringy on column 2
+say "\n--> Lowest-revenue salesmen (custom comparison)";
+.[1].say for @table-rows.sort({  $^a[3] <=> $^b[3]
+                              || $^b[1] leg $^a[1] });

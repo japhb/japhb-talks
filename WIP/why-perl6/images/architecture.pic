@@ -1,0 +1,157 @@
+.PS
+scale = 1.0;
+
+thicken    = 2.0;
+linethick  = thicken/scale;
+arrowthick = 2.5*linethick;
+arrowht    = 0.1*thicken;
+arrowwid   = 0.075*thicken;
+movewid    = 0.3;
+moveht     = 0.2;
+boxwid     = 1.0;
+boxht      = 0.4;
+
+define perl6_colored { shaded "orange"  outlined "darkorange" }
+define nqp_colored   { shaded "green"   outlined "darkgreen"  }
+define spec_colored  { shaded "darkred" outlined "darkred"    }
+define vm_colored    { shaded "black"   outlined "black"      }
+
+define black_text { "<tspan font-family=\"sans-serif\">" + $1 + "</tspan>" }
+define white_text { "<tspan font-family=\"sans-serif\" font-weight=\"bold\" fill=\"white\">" + $1 + "</tspan>" }
+
+define perl6_box { [
+    box perl6_colored() white_text($1);
+] }
+
+define perl6_box_big { [
+    box perl6_colored() white_text($1) white_text($2) ht 0.65;
+] }
+
+define nqp_box { [
+    box nqp_colored() white_text($1);
+] }
+
+define nqp_box_big { [
+    box nqp_colored() white_text($1) white_text($2) ht 0.65;
+] }
+
+define spec_box { [
+    box spec_colored() white_text($1);
+] }
+
+define vm_box { [
+    box vm_colored() white_text($1);
+] }
+
+define compiler { [
+    Vis: [
+        down;
+        box invis black_text($1);
+        [
+            movewid = 0.1;
+            moveht  = 0.1;
+
+            right;
+            [
+                down;
+                nqp_box("Grammar");
+                move;
+                nqp_box("Actions");
+                move;
+                nqp_box("World");
+            ]
+            move;
+            [
+                down;
+                nqp_box_big("Meta", "Objects");
+                move;
+                perl6_box_big("CORE", "Setting");
+            ]
+        ]
+    ]
+    box with .sw at Vis.sw-(0.1, 0.1) wid Vis.wid+0.2 ht Vis.ht+0.1;
+] }
+
+define vm_ast { [
+    down;
+    spec_box($1);
+    move 0.1;
+    vm_box($2);
+] }
+
+define keyitem { [
+    right;
+    box $1 wid 0.2 ht 0.2;
+    box black_text($2) invis wid $3 ht 0.2;
+] }
+
+define divider { [
+    right;
+    line $1 dashed;
+] }
+
+Diagram: [
+
+down;
+
+TOP: [
+    right;
+    Rakudo: compiler("Rakudo");
+    move 0.75;
+    NQP: compiler("NQP (Bootstrapped)");
+    arrow "" "" black_text("Uses") from Rakudo.e+(0.1,0) to NQP.w-(0.1, 0) thick arrowthick;
+]
+
+move;
+divider(TOP.wid);
+move;
+
+Abstraction: [
+    right;
+    box invis black_text("VM") black_text("Abstraction");
+    move;
+    nqp_box("QAST");
+    move;
+    spec_box("6model");
+    move;
+    spec_box("nqp::ops");
+]
+
+move;
+divider(TOP.wid);
+move;
+
+VMs: [
+    right;
+    box invis black_text("VM") black_text("Specific");
+    move;
+    vm_ast("PIRT", "Parrot");
+    move;
+    vm_ast("JAST", "JVM"   );
+    move;
+    vm_ast("MAST", "MoarVM");
+]
+
+move;
+
+Key: [
+    Items: [
+        movewid = 0.05;
+
+        right;
+        keyitem(perl6_colored(), "Perl 6",      0.8);
+        move;
+        keyitem(nqp_colored(),   "NQP",         0.6);
+        move;
+        keyitem(spec_colored(),  "VM Specific", 1.2);
+        move;
+        keyitem(vm_colored(),    "VM",          0.5);
+    ]
+    box with .sw at Items.sw-(0.15, 0.1) wid Items.wid+0.2 ht Items.ht+0.2;
+]
+
+]
+
+move from Diagram.sw-(6,6)/72*scale to Diagram.ne+(6,6)/72*scale
+
+.PE

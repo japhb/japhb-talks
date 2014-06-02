@@ -1,0 +1,9 @@
+sub squish(*@list) {
+    gather for @list {
+        state $previous = take $_;
+        next if $_ === $previous;
+        $previous = take $_;
+    }
+}
+
+say squish(1, 2, 2, 2, 1, 5, 5, 9);

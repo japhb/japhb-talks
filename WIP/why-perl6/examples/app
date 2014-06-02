@@ -1,0 +1,8 @@
+#= List known instances
+multi MAIN('list') { ... }
+
+#= Initialize a new instance
+multi MAIN('init', Str $name = 'DEFAULT') { ... }
+
+#= Delete an instance
+multi MAIN('delete', Str $name, Bool :$force) { ... }
