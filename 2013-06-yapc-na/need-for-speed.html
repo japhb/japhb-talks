@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>The Need for Speed: Benchmarking Perl 6</title>
+
+		<meta name="description" content="A talk about benchmarking the Perl family of languages: Perl 5, NQP, and Perl 6">
+		<meta name="author" content="Geoffrey Broadwell (japhb)">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="../3rdparty/reveal.js/css/reveal.min.css">
+		<link rel="stylesheet" href="../3rdparty/reveal.js/css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="../3rdparty/reveal.js/lib/css/zenburn.css">
+
+		<style type="text/css">
+		  .secondary { color: #999; }
+		</style>
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="../3rdparty/reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="../3rdparty/reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+
+    <section data-markdown>
+        <script type="text/template">
+# The Need for Speed
+
+### Benchmarking Perl 6
+
+<small>Geoffrey Broadwell (japhb)</small>
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# The Need for Speed
+
+### Benchmarking the Perl Family
+
+<small>Geoffrey Broadwell (japhb)</small>
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+I <span style="font-size: larger; color: red">♥</span> Perl 6.
+
+I *really* want to use it at my `$day-job`.
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+(and not just in secret)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+To do this, I need Perl 6 to be "production ready".
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+But what does this *mean*?
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Sayeth masak:
+
+  * Features
+  * Documentation
+  * Concurrency
+  * CPAN
+  * Speed
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+My take:
+
+  * Features -- we has them
+  * Documentation -- have some, need more
+  * Concurrency -- sockets for now
+  * CPAN -- working on that ...
+  * Speed -- **OMG SLOW**
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# SPEED
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+To be sure, there have been some *big* wins already  
+<small>(pmichaud++, jnthn++, ... heck ... #perl6++ for that)</small>  
+but there's clearly a long ways to go.
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+So how fast is "fast enough"?
+
+And how do we find the worst bottlenecks first?
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+My approach:
+
+  * Pick perl5 as the gold standard.
+  * Pick thresholds to beat:
+      - <  2x slower "good"
+      - < 10x slower "OK"
+      - otherwise **"BAD"**
+  * Benchmark!
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+BUT:  
+There are several Perl 6 compilers  
+... some of which have multiple back ends
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Want to compare across:
+
+  * languages
+  * compilers
+  * releases
+  * back ends
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Cloning separate copies for all combinations would take a lot of bandwidth
+and time, let alone duplicated effort to keep all the clones up to date. ☹
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+One clone for each compiler means you can't do cross-version or cross-backend
+comparisons all at once -- between each benchmark run you have to clean up,
+check out a new version, and build it from scratch again. ☹
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# perl6-bench
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Plumbing (`timeall`, `analyze`) written in Perl 5 for speed;  
+porcelain (`bench`) written in Perl 6 for -Ofun.
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Clones *one* mirror of each component across network:
+
+```markdown
+./bench setup
+./bench list-components
+
+COMPONENT    STATUS
+---------    ------
+moarvm       cloned
+niecza       cloned
+nqp          cloned
+nqp-js       cloned
+nqp-jvm      cloned
+parrot       cloned
+perl5        cloned
+perlito      cloned
+rakudo       cloned
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Quick digression: what's what
+
+```markdown
+# Rakudo stack
+rakudo       Perl 6 on NQP
+nqp          Not Quite Perl on Parrot
+nqp-js       Not Quite Perl on JavaScript
+nqp-jvm      Not Quite Perl on JVM
+parrot       Parrot VM
+moarvm       Moar VM
+
+# Other compilers
+niecza       Perl  6  on Mono/.NET
+perlito      Perl 5/6 on perl5/JavaScript
+perl5        Standard Perl 5
+```
+
+(Note the bit about Rakudo being built on NQP;  
+we'll get back to that in a bit.)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Makes local clones as needed:
+
+```markdown
+./bench extract perl5/v5.18.0 nqp/2013.05 rakudo/nom
+./bench list-checkouts
+
+CHECKOUT            REVISION
+--------            --------
+moarvm/moarvm       bc92df7
+niecza/niecza       v24-66-gaee6525
+nqp/2013.05         2013.05
+nqp/nqp             2013.05-151-gb0d3b9c
+nqp-js/nqp-js       fa579be
+nqp-jvm/nqp-jvm     2013.05-151-gb0d3b9c
+parrot/parrot       1b6fc75
+perl5/perl5         v5.19.0-397-g5840701
+perl5/v5.18.0       v5.18.0
+perlito/perlito     v9.0-383-g4f7a85e
+rakudo/nom          2013.05-209-g2975f0b
+rakudo/rakudo       2013.05-209-g2975f0b
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Knows how to keep them up to date by updating  
+the mirror first, then the *non-tag* checkouts:
+
+```markdown
+./bench fetch
+
+==> niecza
+~~~> FETCHING
+----> niecza.git
+----> niecza
+----> v24
+~~~> PULLING
+----> niecza
+Already up-to-date.
+==> nqp
+~~~> FETCHING
+----> nqp.git
+...
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Builds multiple checkouts in sequence:
+
+```bash
+./bench build nqp nqp-jvm perl5/v5.18.0 rakudo/2013.04,2013.05,nom
+# Go enjoy a fine meal ....
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+And yes, prevents Rakudo, NQP, and nqp-cc from cloning their own dependencies:
+
+```js
+{
+    "rakudo": {
+        "name":         "rakudo",
+        "repo_url":     "git://github.com/rakudo/rakudo.git",
+        "release_tags": "^ 20\\d\\d \\D \\d\\d [\\.\\d+]? $",
+        "build_steps":  [
+            [ "make", "realclean" ],
+            [ "git", "clean", "-dxf" ],
+            [ "rm", "-rf", "install", "nqp", "parrot" ],
+            [ "git", "clone", "-l", "../../parrot/parrot.git" ],
+            [ "git", "clone", "-l", "../../nqp/nqp.git" ],
+            [ "perl", "Configure.pl", "--gen-parrot" ],
+            [ "make" ],
+            [ "make", "install" ]
+        ]
+    }
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# Benchmarking
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Gathering timings:
+
+```bash
+# Time every compiler build against every test
+./bench time
+
+# Time only these compiler builds
+./bench time nqp/2013.05 nqp-jvm/2013.05 rakudo/2013.05
+
+# Only run certain tests
+./bench --tests=while_concat,rc-forest-fire time nqp/master rakudo/nom
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Analyzing results:
+
+```bash
+# Compare all timings, ignore startup/compile time, output to screen
+./bench compare
+
+# Compare timings from just this compiler
+./bench compare rakudo
+
+# Ack, turn off the colors!
+./bench --style=0 compare
+
+# Merge timing and comparison data into one JSON file
+./bench --outfile=merged.json compare
+
+# Output to HTML as table
+./bench --outfile=2013-05.html compare \
+        perl5/v5.18.0 nqp/2013.05 nqp-jvm/2013.05 rakudo/2013.05
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*Plotting* results:
+
+```bash
+# Output to HTML as plots
+./bench --format=html_plot --outfile=plots.html compare
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Here's a sample:
+
+![while_array_set](while_array_set.png)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+What does the plot tell us?
+
+  * Log/log plot of throughput versus *scale* (work per run).
+  * Ascending portion: *overhead/warmup dominating*.
+  * Horizontal portion: *as fast as it's going to get*.
+  * Descending portion: *problems scaling up*.
+  * Rightmost point: *ran over time limit*.
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+A nearly ideal plot:
+
+![while_empty](while_empty.png)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Same test with native types:
+
+![while_empty_native](while_empty_native.png)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+A mild weakness in `perl5`:
+
+![while_hash_set](while_hash_set.png)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Non-linear test scaling:
+
+![visit_2d_indices_while](visit_2d_indices_while.png)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+So far these have all been microbenchmarks, with code kept as
+close as possible to exact translations between languages.
+
+But what about longer, more idiomatic code?
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+`rc-forest-fire` is a simple 2D cellular automaton that simulates
+a growing forest with occasional fires.
+
+![rc-forest-fire-frame](rc-forest-fire-frame.png)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+The differences are telling:
+
+![rc-forest-fire](rc-forest-fire.png)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+* `perl5` is the fastest
+* `nqp-jvm` about 2.5x slower at best
+* `nqp` about 8x slower at best
+* `niecza` about 45x slower at best
+* `rakudo` about 415x slower at best
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+If Rakudo is so slow, why am I so happy?
+
+&nbsp;
+
+Because `nqp-jvm` is already considerably faster than  
+`nqp-parrot`, in some cases as fast as `perl5`.  
+*And it hasn't even reached the "make it fast" stage.*
+
+&nbsp;
+
+That bodes very well indeed for Rakudo's performance  
+in the coming months.
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Clearly there's a long way to go.
+
+But now we know *where* to go, and we can measure our progress.
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Pull requests Welcome!
+
+[github.com/japhb/perl6-bench](https://github.com/japhb/perl6-bench "perl6-bench")
+
+`japhb` on  
+`irc.freenode.net #perl6`
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# Questions?
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# Thank you!
+
+        </script>
+    </section>
+
+
+			</div>
+
+		</div>
+
+		<script src="../3rdparty/reveal.js/lib/js/head.min.js"></script>
+		<script src="../3rdparty/reveal.js/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: false,
+				history: true,
+				center: true,
+				rollingLinks: false,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'none', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '../3rdparty/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '../3rdparty/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../3rdparty/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../3rdparty/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '../3rdparty/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '../3rdparty/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: '../3rdparty/reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: '../3rdparty/reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
