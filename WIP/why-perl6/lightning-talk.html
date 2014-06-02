@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Why Perl 6?</title>
+
+		<meta name="description" content="A talk for those wondering if they should try Perl 6">
+		<meta name="author" content="Geoffrey Broadwell (japhb)">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="../../3rdparty/reveal.js/css/reveal.min.css">
+		<link rel="stylesheet" href="../../3rdparty/reveal.js/css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="../../3rdparty/reveal.js/lib/css/zenburn.css">
+
+		<style type="text/css">
+		  .secondary { color: #999; }
+		  img { background-color: #FFF !important; }
+		</style>
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="../../3rdparty/reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="../../3rdparty/reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+
+    <section data-markdown>
+        <script type="text/template">
+# Why Perl 6?
+
+### Geoff Broadwell
+
+gjb@google.com
+
+japhb on Freenode and GitHub
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Guiding principles
+
+<!-- See http://www.perl.com/pub/2003/06/25/perl6essentials.html
+     and http://irclog.perlgeek.de/perl6/2014-04-24#i_8632910 -->
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*Make the easy things easy,*
+
+and the hard things possible.
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Proper REPL
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+$ perl6
+> say 'Hello World!';
+Hello World!
+> (^10).list
+0 1 2 3 4 5 6 7 8 9
+> enum Features < Powerful Concise Flexible >;
+> say Features.pick(3);
+Flexible Concise Powerful
+>
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Simplified common operations
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+if 0 < $a < 27 { ... }
+if $b eq 'foo' | 'bar' | 'baz' { ... }
+if [<=] @values { say 'sorted' }
+
+my $count = +@players;
+my $sum   = [+] @scores;
+my $dot   = [+] @vec1 »*« @vec2;
+my $range = minmax @values;
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Extended operator selection
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Type       | Subtype       | Examples
+---------- | ------------- | -------------------------
+Comparison | *Generic*     | cmp before after
+           | *Stringy*     | leg lt le ge gt
+           | *Numeric*     | <=> <  <= >=  >
+           | *Equivalence* | eq eqv == === =:= ~~
+Set        | *Unicode*     | ∈ ∉ ∋ ∌ ∪ ∩ ⊖ ⊂ ⊆
+           | *Texas*       | (elem) (cont) (&) (^) (<)
+Misc       | *Numeric*     | min max gcd lcm div %%
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## User defined operators
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/user-defined-ops -->
+
+```
+multi postfix:<!>(Int $i) { [*] 1..$i     }
+multi postfix:<!>(Str $s) { $s.uc ~ '!'   }
+multi prefix:<⚠>(Str $s)  { "WARNING: $s" }
+sub   term:<☣>            { 'biohazard'   }
+
+.say for 10!, 'help'!, ⚠☣!;
+```
+
+```
+3628800
+HELP!
+WARNING: BIOHAZARD!
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Huffmanized closures
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+# Expression closures using '*'
+$max - *
+*.chars > 5
+(* ~ '.html').path.e
+
+# Bare block closures with implicit arguments
+{ .underage_by = max(0, 18 - .age) }
+{ "Coords: ($^x, $^y, $^z)" }
+
+# Pointy block closures with explicit arguments
+-> $name, $rank, $serial? { ... }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Powerful, flexible builtins
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/sort -->
+
+```
+# Type-sensitive stable default sort
+@strings.sort          # ascending
+@numbers.sort.reverse  # descending
+
+# Sort according to an extracted key
+@planets.sort(*.mass)
+
+# Sort using a custom comparator:
+#    ascending numeric on column 4,
+#   descending stringy on column 2
+@table-rows.sort({  $^a[3] <=> $^b[3]
+                 || $^b[1] leg $^a[1] })
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Easy tool making: MAIN/USAGE
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/app -->
+
+```
+#= List known instances
+multi MAIN('list') { ... }
+
+#= Initialize a new instance
+multi MAIN('init', Str $name = 'DEFAULT') { ... }
+
+#= Delete an instance
+multi MAIN('delete', Str $name, Bool :$force) { ... }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+$ ./app  # or `./app -?` or `./app --help`
+Usage:
+  ./app list -- List known instances
+  ./app init [<name>] -- Initialize a new instance
+  ./app [--force] delete <name> -- Delete an instance
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*We're designing a language for the next several decades; take the long view.*
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Sane type system
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Scalars: Bool, Int, Num, Rat, Str, IO, ...
+
+Natives: uint8, int32, num32, num64, ...
+
+Aggregates: Pair, Array, Hash, Bag, Set, ...
+
+Errors: Exception, Failure, X::*, ...
+
+Specials: Mu, Any, Junction, Cool, ...
+
+Roles: Numeric, Stringy, Positional, ...
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+![Type graph subset centered on Numeric](images/type-graph-Numeric.svg)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Subset types
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+> subset Palindrome of Str where { $^a eq $^a.flip }
+> 'foobar' ~~ Palindrome
+False
+> 'deified' ~~ Palindrome
+True
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Gradual typing
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+my $foo;           # No useful type info
+my $num;           # A number?  Maybe?
+my Numeric  $num;  # Definitely acts like a number!
+my Real     $num;  # A real number (not e.g. Complex)
+my Rational $num;  # A rational number
+my Int      $num;  # An arbitrary length integer
+my uint32   $num;  # A 32-bit unsigned integer
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+my $a;         # Constraint: none,            default type: Any
+my @a;         # Constraint: Positional,      default type: Array
+my Str @a;     # Constraint: Positional[Str], default type: Array[Str]
+my Str @a[4];  # ... with exactly 4 elements
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Compile-time type checking
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/type-error -->
+
+```
+sub double(Numeric $val) { $val * 2 }
+say double('bar');
+```
+
+```
+$ perl6 type-error
+===SORRY!=== Error while compiling type-error
+Calling 'double' will never work with argument types (str)
+    Expected: :(Numeric $val)
+at type-error:2
+------> say ⏏double('bar');
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Multi-dispatch
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/type-multi -->
+
+```
+multi double(Numeric $val) { $val * 2 }
+multi double(Stringy $val) { $val x 2 }
+say double('bar');
+```
+
+```
+$ perl6 type-multi
+barbar
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Clear, concise OO syntax
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/simple-oo -->
+
+```
+class Widget {
+    has @.parts;        # Attribute + RO accessor
+    has $.brand is rw;  # Attribute + RW accessor
+    has $!code-name;    # Private attribute
+
+    method list-bom() {
+        .say for @.parts;
+    }
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Roles
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/roles -->
+
+```
+class Person { }
+
+role Doctor {
+    has $.tricorder;
+    method cure(Person $p) { say "He's dead, Jim." }
+}
+
+role Officer {
+    has $.rank;
+    method command(Person $p, *@tasks) { }
+}
+
+class ChiefMedicalOfficer
+    is   Person
+    does Officer
+    does Doctor { }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+role BrickLayer {
+    has $.trowel;
+    method cure($mortar) { say 'Just let it set awhile.' }
+}
+
+my ChiefMedicalOfficer $Bones .= new;
+
+say $Bones.^does(Doctor);      # True
+say $Bones.^does(BrickLayer);  # False
+say $Bones.^attributes».name;  # $!tricorder $!rank
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/role-collision -->
+
+```
+class HortaHealer
+    is   Person
+    does Doctor
+    does BrickLayer { }
+
+my HortaHealer $doc .= new;
+```
+
+```
+===SORRY!===
+Method 'cure' must be resolved by class HortaHealer
+because it exists in multiple roles (BrickLayer, Doctor)
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Delegation
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- Based on examples in the delegation spec:
+http://perlcabal.org/syn/S12.html#Delegation -->
+
+```
+# All methods delegated to various attributes
+class Dog {
+    has $.tail  handles 'wag';
+    has $.legs  handles < walk run lope shake lift >;
+    has $.fur   handles Groomable;
+    has $.brain handles *;
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Introspection
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/introspection -->
+
+```
+my  $half = 1/2;
+say $half.WHAT;         # (Rat)
+say $half.WHICH;        # Rat|1/2
+say $half.WHERE;        # 140230308392360
+say $half.HOW;          # Perl6::Metamodel::ClassHOW.new()
+say $half.^mro;         # (Rat) (Cool) (Any) (Mu)
+say $half.^attributes;  # Int $!numerator Int $!denominator
+say $half.^methods;     # FatRat Num Int new nude norm
+                        # floor ceiling abs sqrt sign ...
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Classes all the way down
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+![.HOW chain starting at Rat|1/2](images/HOW.svg)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*Three great virtues of a programmer:*
+
+*Laziness, Impatience, and Hubris.*
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Lazy evaluation
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/laziness -->
+
+```
+# Lazily evaluated infinite lists
+my  @odd-numbers  := 1, 3 ... *;
+my  @odd-squares  := @odd-numbers.map: { $_ * $_ };
+my  @palin-odd-sq := @odd-squares.grep: { $_ eq $_.flip };
+say @palin-odd-sq[5];
+
+--->  14641
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## gather / take
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/gather-take -->
+
+```
+# Lazily squish duplicates out of a possibly infinite list
+sub squish(*@list) {
+    gather for @list {
+        state $previous = take $_;
+        next if $_ === $previous;
+        $previous = take $_;
+    }
+}
+say squish(1, 2, 2, 2, 1, 5, 5, 9);
+
+--->  1 2 1 5 9
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Parallelizable ops
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+my @negated = -«@val;
+my @doubled = @val »*» 2;
+my @ratios  = @num »/« @den;
+
+@increasing »+=» 123;
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Feeds (pipelines)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/feed -->
+
+```
+# Create a simple outline from markup
+$file.IO.slurp.lines
+    ==> parse-lines()
+    ==> grep(*.is-header)
+    ==> map({ '  ' x .depth ~ .text })
+    ==> my @outline;
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Threading
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- From jnthn's rant on thread-safe programming, with some slight adjustments for clarity here:
+http://6guts.wordpress.com/2014/04/17/racing-to-writeness-to-wrongness-leads/ -->
+
+```
+# Compute a histogram of words across many files
+# Process each file in a separate task using a thread pool
+my @all_counts = await do for @files -> $filename {
+    start {
+        my %word_counts;
+        for slurp($filename).words {
+            %word_counts{$_}++;
+        }
+        %word_counts
+    }
+}
+
+# Bring the subtotals together into a single result
+my %totals;
+for @all_counts {
+    %totals{.key} += .value;
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Promises
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+my $promise = Promise.new;            # Thread-safe promise to do or die
+my $combined-promise                  # Do something more after first
+    = $promise.then({ say .status })  #     promise completes
+
+my $vow = $promise.vow;  # Exclusive right to set promise status once
+$vow.keep($result);      # Set Kept   and $promise.result
+                         #  - OR -
+$vow.break($exception);  # Set Broken and $promise.cause
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- XXXX: Is this misleading because a timeout doesn't
+stop the long calculation in progress? -->
+
+```
+# Both start {} and Promise.in() return Promises
+my $calc  = start { ... long running calculation ... };
+my $timer = Promise.in($timeout);
+
+await Promise.anyof($calc, $timer);
+say $calc.status == Kept ?? $calc.result !! 'Timed out!';
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Channels: producer/consumer
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/channels -->
+
+```
+# Concurrent blocking queues between stages
+my $source = Channel.new;
+my $sink   = Channel.new;
+
+# Stage 1: 1 source/preparation task
+start {
+    @jobs.map: { $source.send(prepare-job($_)) };
+    $source.close;
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+# Stage 2: 4 worker/processing tasks
+for ^4 {
+    start { loop { winner $source {
+        more * { $sink.send(process-job($_)) }
+        done * { $sink.close; last }
+    } } }
+}
+
+# Stage 3: 1 sink/output task (in main thread)
+.say for $sink.list;
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Supplies: publish/subscribe
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/fizzbuzz -->
+
+```
+# Create a Supply that sends an incrementing value every .1 second
+my $every1  = Supply.interval(.1).map(* + 1);
+
+# Split off additional supplies tracking Fizz and Buzz counts
+my $every3  = $every1.grep(* %% 3).map:  { "$_ Fizz"     };
+my $every5  = $every1.grep(* %% 5).map:  { "$_ Buzz"     };
+my $every15 = $every1.grep(* %% 15).map: { "$_ FizzBuzz" };
+
+# Merge the supplies again, preferring Fizz/Buzz, and tap to output
+my $merged = Supply.merge($every15, $every5, $every3, $every1);
+$merged.map(*.Str.words).uniq(:as(*[0])).tap({.[*-1].say});
+
+# Wait for output of 1 .. 30
+sleep 3;
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Filesystem watchers
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- From the code that builds this very presentation:
+https://github.com/japhb/japhb-talks/blob/master/tools/make-presentations -->
+
+```
+watch-tree($.root-dir, :skip< .git 3rdparty >)\
+    .map(*.path)\
+    .uniq(:expires(1))\
+    .grep({ interesting-path($_) })\
+    .act(-> $path {
+        $!log.more: "Noticed change at $path";
+        self.load-templates if $path ~~ /^ $tmpl-dir /;
+        self.load-decks     if $path ~~ / $json-path /;
+        self.gen-presentations;
+    });
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Async I/O
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/async-get -->
+<!-- Adapted and refactored from jnthn's 'crappy_async_lwp' example:
+     https://gist.github.com/jnthn/11126125 -->
+
+```
+sub async-connect($host, $port, &after-connect, *@extra-args) {
+    my $p = Promise.new;
+    my $v = $p.vow;
+    IO::Socket::Async.connect($host, $port).then(-> $cr {
+        if $cr.status == Kept {
+            my $socket = $cr.result;
+            after-connect($socket, $v, |@extra-args);
+        }
+        else {
+            $v.break($cr.cause);
+        }
+    });
+    $p;
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+sub async-get($socket, $v, $path) {
+    $socket.send("GET $path\r\n\r\n").then(-> $wr {
+        if $wr.status == Broken {
+            $v.break($wr.cause);
+            $socket.close;
+            return;
+        }
+
+        my @chunks;
+        $socket.chars_supply.tap(
+            { @chunks.push($_) },
+            done => { $socket.close; $v.keep(@chunks.join) },
+            quit => { $v.break($_) }
+        );
+    });
+}
+say await async-connect('www.jnthn.net', 80, &async-get, '/');
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*Communication can only happen*
+
+*when you agree on the language.*
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Grammars
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- Yes, this is the real grammar:
+https://github.com/moritz/json/blob/master/lib/JSON/Tiny/Grammar.pm -->
+
+```
+grammar JSON::Tiny::Grammar;
+
+token TOP       { ^ \s* [ <object> | <array> ] \s* $ }
+rule object     { '{' ~ '}' <pairlist>  }
+rule pairlist   { <pair> * % \,         }
+rule pair       { <string> ':' <value>  }
+rule array      { '[' ~ ']' <arraylist> }
+rule arraylist  {  <value> * % [ \, ]   }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+proto token value {*}
+token value:sym<number> {
+    '-'?
+    [ 0 | <[1..9]> <[0..9]>* ]
+    [ \. <[0..9]>+ ]?
+    [ <[eE]> [\+|\-]? <[0..9]>+ ]?
+}
+token value:sym<true>    { <sym>    }
+token value:sym<false>   { <sym>    }
+token value:sym<null>    { <sym>    }
+token value:sym<object>  { <object> }
+token value:sym<array>   { <array>  }
+token value:sym<string>  { <string> }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+token string {
+    \" ~ \" [ <str> | \\ <str=.str_escape> ]*
+}
+token str {
+    <-["\\\t\n]>+
+}
+token str_escape {
+    <["\\/bfnrt]> | u <xdigit>**4
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Grammars --> parse trees
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+> say JSON::Tiny::Grammar.parse(q{ [1, "foo", {"answer": 42}] })
+｢ [1, "foo", {"answer": 42}] ｣
+ array => ｢[1, "foo", {"answer": 42}] ｣
+  arraylist => ｢1, "foo", {"answer": 42}｣
+   value => ｢1｣
+   value => ｢"foo"｣
+    string => ｢"foo"｣
+     str => ｢foo｣
+   value => ｢{"answer": 42}｣
+    object => ｢{"answer": 42}｣
+     pairlist => ｢"answer": 42｣
+      pair => ｢"answer": 42｣
+       string => ｢"answer"｣
+        str => ｢answer｣
+       value => ｢42｣
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Actions
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- This is again the real code, but I've reformatted a little for clarity:
+https://github.com/moritz/json/blob/master/lib/JSON/Tiny/Actions.pm -->
+
+```
+class JSON::Tiny::Actions;
+
+method TOP($/)       { make $/.values.[0].ast }
+method object($/)    { make $<pairlist>.ast.hash.item }
+method pairlist($/)  { make $<pair>>>.ast.flat }
+method pair($/)      { make $<string>.ast => $<value>.ast }
+method array($/)     { make $<arraylist>.ast.item }
+method arraylist($/) { make [$<value>>>.ast] }
+method string($/)    {
+    make +@$<str> == 1
+        ?? $<str>[0].ast
+        !! $<str>>>.ast.join;
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+method value:sym<number>($/) { make +$/.Str }
+method value:sym<string>($/) { make $<string>.ast }
+method value:sym<true>($/)   { make Bool::True  }
+method value:sym<false>($/)  { make Bool::False }
+method value:sym<null>($/)   { make Any }
+method value:sym<object>($/) { make $<object>.ast }
+method value:sym<array>($/)  { make $<array>.ast }
+
+method str($/)               { make ~$/ }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+my %h = '\\' => "\\",
+        '/'  => "/",
+        'b'  => "\b",
+        'n'  => "\n",
+        't'  => "\t",
+        'f'  => "\f",
+        'r'  => "\r",
+        '"'  => "\"";
+method str_escape($/) {
+    if $<xdigit> {
+        make chr(:16($<xdigit>.join));
+    } else {
+        make %h{~$/};
+    }
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Grammars + Actions --> syntax trees
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+> my  $json = q{ [1, "foo", {"answer": 42}] };
+  my  JSON::Tiny::Actions $actions .= new;
+  say JSON::Tiny::Grammar.parse($json, :$actions).ast.perl;
+[1, "foo", {"answer" => 42}]
+
+> say from-json($json).perl;  # Convenience routines FTW
+[1, "foo", {"answer" => 42}]
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Lexical slangs
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/v5 -->
+<!-- Adapted from the 2013 Day 16 Perl 6 Advent Calendar entry:
+http://perl6advent.wordpress.com/2013/12/16/day-16-slangs/ -->
+
+```
+use v6;
+my $val = 123;
+$val ~= 'abc';      # Perl 6: Concatenation is '~'
+say try $val + 1;   # Perl 6: Invalid, try returns Nil
+
+{
+    use v5;
+    $val .= 'xyz';  # Perl 5: Concatenation is '.'
+    say($val + 1);  # Perl 5: Valid, evaluates to 124
+}
+
+say "Back to Perl { 2 * 3 }";
+```
+
+```
+Nil
+124
+Back to Perl 6
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*Give the user lots of tools to find and fix bugs.*
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Awesome error messages
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+$ perl6 -e 'saw "Hello!"'
+===SORRY!=== Error while compiling -e
+Undeclared routine:
+    saw used at line 1. Did you mean 'say'?
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Deep inspection
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+my $v = [ 42, { a => 5 } ];
+
+say $v.Str;
+say $v.gist;
+say $v.perl;
+```
+
+```
+42 a    5
+42 {"a" => 5}
+[42, {"a" => 5}]
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+say $v.DUMP;
+```
+
+```
+Array<1>(
+    :$!flattens(True),
+    :$!items(BOOTArray<3>(
+        ▶42,
+        ▶Hash<5>(
+            :$!descriptor((null)),
+            :$!storage(BOOTHash<6>(a => ▶5))
+        )
+    )),
+    :$!nextiter(▶Mu)
+)
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Interactive debugger
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+XXXX: A few simple examples, including regex debugging
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+XXXX: Screenshot of non-CLI debugger frontend, if available
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Make the easy things easy,
+
+*and the hard things possible.*
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## NativeCall
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- Excerpted from the GTK::Simple implementation:
+https://github.com/perl6/gtk-simple/blob/master/lib/GTK/Simple.pm6 -->
+
+```
+class GTK::Simple::App does GTK::Simple::Widget
+                       does GTK::Simple::Container {
+    sub gtk_init(CArray[int32] $argc, CArray[CArray[Str]] $argv)
+        is native('libgtk-3.so.0') {*}
+
+    sub gtk_window_new(int32 $window_type)
+        is native('libgtk-3.so.0') returns GtkWidget {*}
+
+    method run() {
+        gtk_widget_show($!gtk_widget);
+        g_idle_add(
+            { GTK::Simple::Scheduler.process_queue },
+            OpaquePointer);
+        gtk_main();
+    }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+    has $!deleted_supply;
+    #| Tap this supply to react to the window being closed
+    method deleted() {
+        $!deleted_supply //= do {
+            my $s = Supply.new;
+            g_signal_connect_wd($!gtk_widget, "delete-event",
+                -> $, $ {
+                    $s.more(self);
+                    CATCH { default { note $_; } }
+                },
+                OpaquePointer, 0);
+            $s
+        }
+    }
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Metamodel programming
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- examples/metamodel -->
+
+```
+# Equivalent to:  class MyShinyNewClass { has Int $.val; }
+
+my $name  := 'MyShinyNewClass';
+my $class := Metamodel::ClassHOW.new_type(:$name);
+my $attr  := Attribute.new(:name('$!val'), :type(Int),
+                           :package($class), :has_accessor);
+
+$class.HOW.add_parent($class, Any);
+$class.^add_attribute($attr);
+$class.^compose;
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Metacombinators
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+<!-- Actual implementation of Supply.merge in Rakudo -->
+
+```
+method merge(*@s) {
+    @s.unshift(self) if self.DEFINITE;  # add if instance method
+    return Supply unless +@s;           # nothing to be done
+    return @s[0]  if +@s == 1;          # nothing to be done
+
+    my $dones = 0;
+    on -> $res {
+        @s => {
+            more => -> \val { $res.more(val) },
+            done => { $res.done() if ++$dones == +@s }
+        },
+    }
+}
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Hack-friendly architecture
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+![Rakudo architecture diagram](images/architecture.svg)
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# Why Perl 6?
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+### SO
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## MANY
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# REASONS
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+# Questions?
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+----
+## EXTRA SLIDES AND IDEAS
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*The community's rewrite of Perl and of the community*
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+XXXX: #perl6, commit bits, -Ofun, hugs, p6weekly, 6guts
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+## Building blocks
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+```
+> .say for permutations(3)
+0 1 2
+0 2 1
+1 0 2
+1 2 0
+2 0 1
+2 1 0
+> .say for combinations(4, 2)
+0 1
+0 2
+0 3
+1 2
+1 3
+2 3
+```
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+*TIMTOWTDI:*
+
+*There Is More Than One Way To Do It*
+
+<!-- XXXX: Syntax variations? -->
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+Triangular numbers example
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+XXXX: More builtins examples
+
+Str:  comb, samecase, samespace, trans, indent, unival
+
+Any:  classify/categorize with :into, minmax
+
+Mu:   perl, DUMP
+
+List: end, fmt, munch, pick, roll, rotate, rotor, kv
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+XXXX: HOW, metaclass roles, KnowHOW, 6model, STables, etc.
+XXXX: Draw out with graphviz or pic
+        </script>
+    </section>
+
+    <section data-markdown>
+        <script type="text/template">
+
+        </script>
+    </section>
+
+
+			</div>
+
+		</div>
+
+		<script src="../../3rdparty/reveal.js/lib/js/head.min.js"></script>
+		<script src="../../3rdparty/reveal.js/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: false,
+				history: true,
+				center: true,
+				rollingLinks: false,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'none', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '../../3rdparty/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '../../3rdparty/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../../3rdparty/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../../3rdparty/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '../../3rdparty/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '../../3rdparty/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: '../../3rdparty/reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: '../../3rdparty/reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
