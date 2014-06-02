@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: dpic version 2014.Jan.01 option -v for SVG 1.1 -->
+<!-- width="286" height="376" -->
+<svg
+ xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+ xml:space="preserve"
+ style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision;
+ image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+ width="285px" height="375px"
+ viewBox="0 0 285 375"
+ font-size="11pt" text-anchor="middle"
+ stroke="black" stroke-miterlimit="10" stroke-width="1" fill="none">
+<g>
+<rect x="7.5" y="7.5" rx="13.5" ry="13.5" width="270" height="45" />
+<text stroke-width="0.2pt" fill="black" x="140.535714" y="34.8125">
+Rat|1/2
+</text>
+<polygon fill="black"
+ points="142.5,89 140.890388,89
+142.5,95.438447 144.109612,89" />
+<line x1="142.5" y1="52.5" x2="142.5" y2="95.438447" />
+<text stroke-width="0.2pt" fill="black" text-anchor="start" x="140.125" y="78.781724">
+ .HOW
+</text>
+<rect x="7.5" y="97.5" rx="13.5" ry="13.5" width="270" height="45" />
+<text stroke-width="0.2pt" fill="black" x="140.535714" y="124.8125">
+Perl6::MetaModel::ClassHOW
+</text>
+<polygon fill="black"
+ points="142.5,179 140.890388,179
+142.5,185.438447 144.109612,179" />
+<line x1="142.5" y1="142.5" x2="142.5" y2="185.438447" />
+<text stroke-width="0.2pt" fill="black" text-anchor="start" x="140.125" y="168.781724">
+ .HOW
+</text>
+<rect x="7.5" y="187.5" rx="13.5" ry="13.5" width="270" height="45" />
+<text stroke-width="0.2pt" fill="black" x="140.535714" y="214.8125">
+NQP::ClassHOW
+</text>
+<polygon fill="black"
+ points="142.5,269 140.890388,269
+142.5,275.438447 144.109612,269" />
+<line x1="142.5" y1="232.5" x2="142.5" y2="275.438447" />
+<text stroke-width="0.2pt" fill="black" text-anchor="start" x="140.125" y="258.781724">
+ .HOW
+</text>
+<rect x="7.5" y="277.5" rx="13.5" ry="13.5" width="270" height="45" />
+<text stroke-width="0.2pt" fill="black" x="140.535714" y="304.8125">
+KnowHOW
+</text>
+<line x1="142.5" y1="322.5" x2="142.5" y2="345" />
+<text stroke-width="0.2pt" fill="black" text-anchor="start" x="140.125" y="338.5625">
+ .HOW
+</text>
+<path d="M 142.5,345
+ A 22.5 22.5 0 0 1 120,367.5" />
+<path d="M 120,367.5
+ A 22.5 22.5 0 0 1 97.5,345" />
+<polygon fill="black"
+ points="97.5,331 99.109612,331
+97.5,324.561553 95.890388,331" />
+<line x1="97.5" y1="345" x2="97.5" y2="324.561553" />
+</g></svg>

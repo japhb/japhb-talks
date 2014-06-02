@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: dpic version 2014.Jan.01 option -v for SVG 1.1 -->
+<!-- width="505" height="438" -->
+<svg
+ xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+ xml:space="preserve"
+ style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision;
+ image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+ width="504px" height="436.5px"
+ viewBox="0 0 504 436.5"
+ font-size="11pt" text-anchor="middle"
+ stroke="black" stroke-miterlimit="10" stroke-width="1" fill="none">
+<g>
+<text stroke-width="0.2pt" fill="black" x="110.285714" y="31.5625">
+<tspan font-family="sans-serif">Rakudo</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="17.75" y="44.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="60.785714" y="67.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Grammar</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="17.75" y="89.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="60.785714" y="112.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Actions</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="17.75" y="134.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="60.785714" y="157.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">World</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="116.75" y="44.75" width="90" height="58.5" />
+<text stroke-width="0.2pt" fill="black" x="159.785714" y="71.9375">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Meta</tspan>
+</text>
+<text stroke-width="0.2pt" fill="black" x="159.785714" y="85.6875">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Objects</tspan>
+</text>
+<rect fill="orange"
+ stroke-width="2.5"
+ stroke="darkorange"
+ x="116.75" y="112.25" width="90" height="58.5" />
+<text stroke-width="0.2pt" fill="black" x="159.785714" y="139.4375">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">CORE</tspan>
+</text>
+<text stroke-width="0.2pt" fill="black" x="159.785714" y="153.1875">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Setting</tspan>
+</text>
+<rect stroke-width="2.5"
+ x="8.75" y="8.75" width="207" height="171" />
+<text stroke-width="0.2pt" fill="black" x="384.785714" y="31.5625">
+<tspan font-family="sans-serif">NQP (Bootstrapped)</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="292.25" y="44.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="335.285714" y="67.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Grammar</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="292.25" y="89.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="335.285714" y="112.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Actions</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="292.25" y="134.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="335.285714" y="157.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">World</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="391.25" y="44.75" width="90" height="58.5" />
+<text stroke-width="0.2pt" fill="black" x="434.285714" y="71.9375">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Meta</tspan>
+</text>
+<text stroke-width="0.2pt" fill="black" x="434.285714" y="85.6875">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Objects</tspan>
+</text>
+<rect fill="orange"
+ stroke-width="2.5"
+ stroke="darkorange"
+ x="391.25" y="112.25" width="90" height="58.5" />
+<text stroke-width="0.2pt" fill="black" x="434.285714" y="139.4375">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">CORE</tspan>
+</text>
+<text stroke-width="0.2pt" fill="black" x="434.285714" y="153.1875">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Setting</tspan>
+</text>
+<rect stroke-width="2.5"
+ x="283.25" y="8.75" width="207" height="171" />
+<polygon stroke-width="6.25"
+ fill="black"
+ points="259.375,94.25 259.375,96.490624
+265.349996,94.25 259.375,92.009376" />
+<line stroke-width="6.25"
+ x1="224.75" y1="94.25" x2="265.349996" y2="94.25" />
+<text stroke-width="0.2pt" fill="black" x="243.085712" y="85.3125">
+
+</text>
+<text stroke-width="0.2pt" fill="black" x="243.085712" y="99.0625">
+
+</text>
+<text stroke-width="0.2pt" fill="black" x="243.085712" y="112.8125">
+<tspan font-family="sans-serif">Uses</tspan>
+</text>
+<line stroke-width="2.5"
+ stroke-dasharray="4.5,4.5"
+ x1="8.75" y1="197.75" x2="490.25" y2="197.75" />
+<text stroke-width="0.2pt" fill="black" x="72.035714" y="231.6875">
+<tspan font-family="sans-serif">VM</tspan>
+</text>
+<text stroke-width="0.2pt" fill="black" x="72.035714" y="245.4375">
+<tspan font-family="sans-serif">Abstraction</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="146" y="215.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="189.035714" y="238.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">QAST</tspan>
+</text>
+<rect fill="darkred"
+ stroke-width="2.5"
+ stroke="darkred"
+ x="263" y="215.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="306.035714" y="238.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">6model</tspan>
+</text>
+<rect fill="darkred"
+ stroke-width="2.5"
+ stroke="darkred"
+ x="380" y="215.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="423.035714" y="238.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">nqp::ops</tspan>
+</text>
+<line stroke-width="2.5"
+ stroke-dasharray="4.5,4.5"
+ x1="8.75" y1="269.75" x2="490.25" y2="269.75" />
+<text stroke-width="0.2pt" fill="black" x="72.035714" y="326.1875">
+<tspan font-family="sans-serif">VM</tspan>
+</text>
+<text stroke-width="0.2pt" fill="black" x="72.035714" y="339.9375">
+<tspan font-family="sans-serif">Specific</tspan>
+</text>
+<rect fill="darkred"
+ stroke-width="2.5"
+ stroke="darkred"
+ x="146" y="287.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="189.035714" y="310.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">PIRT</tspan>
+</text>
+<rect fill="black"
+ stroke-width="2.5"
+ stroke="black"
+ x="146" y="332.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="189.035714" y="355.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">Parrot</tspan>
+</text>
+<rect fill="darkred"
+ stroke-width="2.5"
+ stroke="darkred"
+ x="263" y="287.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="306.035714" y="310.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">JAST</tspan>
+</text>
+<rect fill="black"
+ stroke-width="2.5"
+ stroke="black"
+ x="263" y="332.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="306.035714" y="355.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">JVM</tspan>
+</text>
+<rect fill="darkred"
+ stroke-width="2.5"
+ stroke="darkred"
+ x="380" y="287.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="423.035714" y="310.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">MAST</tspan>
+</text>
+<rect fill="black"
+ stroke-width="2.5"
+ stroke="black"
+ x="380" y="332.75" width="90" height="36" />
+<text stroke-width="0.2pt" fill="black" x="423.035714" y="355.5625">
+<tspan font-family="sans-serif" font-weight="bold" fill="white">MoarVM</tspan>
+</text>
+<rect fill="orange"
+ stroke-width="2.5"
+ stroke="darkorange"
+ x="71.75" y="395.75" width="18" height="18" />
+<text stroke-width="0.2pt" fill="black" x="123.785714" y="409.5625">
+<tspan font-family="sans-serif">Perl 6</tspan>
+</text>
+<rect fill="green"
+ stroke-width="2.5"
+ stroke="darkgreen"
+ x="166.25" y="395.75" width="18" height="18" />
+<text stroke-width="0.2pt" fill="black" x="209.285714" y="409.5625">
+<tspan font-family="sans-serif">NQP</tspan>
+</text>
+<rect fill="darkred"
+ stroke-width="2.5"
+ stroke="darkred"
+ x="242.75" y="395.75" width="18" height="18" />
+<text stroke-width="0.2pt" fill="black" x="312.785714" y="409.5625">
+<tspan font-family="sans-serif">VM Specific</tspan>
+</text>
+<rect fill="black"
+ stroke-width="2.5"
+ stroke="black"
+ x="373.25" y="395.75" width="18" height="18" />
+<text stroke-width="0.2pt" fill="black" x="411.785714" y="409.5625">
+<tspan font-family="sans-serif">VM</tspan>
+</text>
+<rect stroke-width="2.5"
+ x="58.25" y="386.75" width="382.5" height="36" />
+</g></svg>
